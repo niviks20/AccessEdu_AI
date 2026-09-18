@@ -154,6 +154,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .home-hero-signal span:last-child { color: rgba(255,255,255,.82); font-size: .95rem; }
 .signal-icon { color: #ffd98b; font-size: 2.5rem; line-height: 1; }
+.install-card {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1rem; align-items: center;
+  margin: -1rem 0 2.5rem; padding: 1rem 1.15rem; border: 1px solid var(--border); border-radius: 16px;
+  background: var(--surface); box-shadow: var(--shadow);
+}
+.install-card-icon { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 12px; background: var(--primary-soft); color: var(--primary); font-size: 1.8rem; font-weight: 800; }
+.install-card h2 { margin: 0 0 .2rem; font-size: 1.2rem; }
+.install-card p { margin: 0; color: var(--ink-soft); }
+.install-card .eyebrow { margin-bottom: .25rem; }
+.install-app-button { width: auto; white-space: nowrap; }
+.install-help { grid-column: 2 / -1; font-size: .9rem; }
 .home-section { margin-bottom: 2.25rem; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .section-heading h2 { margin-bottom: 0; }
@@ -344,6 +355,9 @@ textarea { min-height: 7em; resize: vertical; }
   .vision-support { grid-template-columns: auto minmax(0, 1fr); }
   .vision-support .text-link { grid-column: 2; }
   .sos-panel { align-items: flex-start; flex-direction: column; }
+  .install-card { grid-template-columns: auto minmax(0, 1fr); margin-top: -.25rem; }
+  .install-app-button { grid-column: 1 / -1; width: 100%; }
+  .install-help { grid-column: 1 / -1; }
   .voice-panel-heading { flex-direction: column; }
   .voice-command-input-row { flex-direction: column; }
   .voice-command-input-row .btn { width: 100%; }
@@ -375,6 +389,21 @@ textarea { min-height: 7em; resize: vertical; }
   .login-hero { padding: 1.25rem; }
   .home-hero h1 { font-size: 2.35rem; }
   .language-picker select { min-width: 6rem; }
+  .main { padding: .75rem; }
+  .home-hero { padding: 1.15rem; border-radius: 18px; }
+  .home-lede { font-size: 1rem; }
+  .home-actions { display: grid; grid-template-columns: 1fr; }
+  .home-actions .btn { width: 100%; min-height: 3.25rem; }
+  .install-card { gap: .75rem; padding: .9rem; }
+  .install-card-icon { width: 2.6rem; height: 2.6rem; }
+  .feature-grid { grid-template-columns: 1fr; gap: .75rem; }
+  .feature-tile { min-height: 0; padding: 1.1rem; }
+  .voice-command-panel { padding: 1rem; border-radius: 16px; }
+  .voice-control-row { gap: .65rem; }
+  .voice-mic-button { width: 100%; justify-content: center; }
+  .vision-support { grid-template-columns: 1fr; }
+  .vision-support-icon { width: 3rem; height: 3rem; }
+  .vision-support .text-link { grid-column: 1; white-space: normal; }
 }
 
 @media (prefers-reduced-motion: reduce){

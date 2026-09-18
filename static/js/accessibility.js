@@ -17,6 +17,7 @@
   var SILENCE_TIMEOUT = 1700;
   var currentLang = "en";
   var GREETING_KEY = "accessedu_voice_greeted";
+  var deferredInstallPrompt = null;
 
   try {
     currentLang = localStorage.getItem("accessedu_lang") || "en";
@@ -671,6 +672,27 @@
     initTheme();
     initStep();
 
+    var installButton = document.getElementById("install-app-button");
+    var installHelp = document.getElementById("install-help");
+    if (installButton) {
+      installButton.hidden = false;
+      installButton.addEventListener("click", function () {
+        if (!deferredInstallPrompt) {
+          if (installHelp) installHelp.hidden = false;
+          return;
+        }
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(function () {
+          deferredInstallPrompt = null;
+          installButton.hidden = true;
+        });
+      });
+    }
+
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
+      if (installButton) installButton.hidden = true;
+    }
+
     var hc = document.getElementById("hc-toggle");
     if (hc) hc.addEventListener("click", toggleTheme);
 
@@ -742,6 +764,19 @@
         el.setAttribute("disabled", "disabled");
       });
     }
+  });
+
+  window.addEventListener("beforeinstallprompt", function (event) {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    var installButton = document.getElementById("install-app-button");
+    if (installButton) installButton.hidden = false;
+  });
+
+  window.addEventListener("appinstalled", function () {
+    deferredInstallPrompt = null;
+    var installButton = document.getElementById("install-app-button");
+    if (installButton) installButton.hidden = true;
   });
 
   if (window.navigator && "serviceWorker" in navigator) {
