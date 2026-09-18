@@ -33,9 +33,11 @@
       <button type="button" id="read-toggle" class="tool-btn needs-tts" aria-pressed="false" aria-label="Read page aloud">
         <span aria-hidden="true">🔊</span> <span data-i18n="readPage">Read page</span>
       </button>
+      {% if not session.get('is_admin') %}
       <button type="button" id="voice-assist-toggle" class="tool-btn needs-stt" aria-pressed="false" aria-label="Toggle voice assistant">
         <span aria-hidden="true">🎙</span> <span data-i18n="voiceAssist">Voice assist</span>
       </button>
+      {% endif %}
       {% if session.get('is_student') or session.get('is_admin') or session.get('is_guest') %}
       <a class="tool-btn" href="{{ url_for('logout_page') }}" aria-label="Log out of AccessEdu"><span data-i18n="logout">Log out</span></a>
       {% endif %}

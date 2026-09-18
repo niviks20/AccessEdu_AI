@@ -116,16 +116,12 @@ def require_login():
 
 @app.route("/")
 def home():
-    if not logged_in():
-        return redirect(url_for("login_page"))
-    return render_template("index.html", active="home")
+    return render_template("index.html", active="home", admin_error=request.args.get("error", ""))
 
 
 @app.route("/login")
 def login_page():
-    if logged_in():
-        return redirect(url_for("home"))
-    return render_template("login.html", error=request.args.get("error", ""))
+    return redirect(url_for("home", error=request.args.get("error", "")))
 
 
 @app.route("/student-login", methods=["POST"])
@@ -155,13 +151,13 @@ def admin_login_form():
         session.pop("is_student", None)
         session.pop("is_guest", None)
         return redirect(url_for("admin_page"))
-    return redirect(url_for("login_page", error="Invalid username or password."))
+    return redirect(url_for("home", error="Invalid username or password."))
 
 
 @app.route("/logout")
 def logout_page():
     session.clear()
-    return redirect(url_for("login_page"))
+    return redirect(url_for("home"))
 
 
 @app.route("/api/logout", methods=["GET"])

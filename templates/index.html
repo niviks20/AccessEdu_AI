@@ -4,6 +4,40 @@
 <h1>Good to see you</h1>
 <p>Choose where you want to go. Every page here works with your keyboard, a screen reader, or your voice.</p>
 
+{% if admin_error %}
+<div class="banner danger" role="alert">{{ admin_error }}</div>
+{% endif %}
+
+{% if not session.get('is_student') and not session.get('is_guest') and not session.get('is_admin') %}
+<section class="card" aria-labelledby="access-title" style="margin-bottom:1.5rem;">
+  <h2 id="access-title">Get started</h2>
+  <p>Students and guests can enter directly. Administrators can sign in here to open the admin dashboard.</p>
+  <div class="button-row">
+    <form method="post" action="{{ url_for('student_login_form') }}">
+      <button type="submit" class="btn">Continue as student</button>
+    </form>
+    <form method="post" action="{{ url_for('guest_login_form') }}">
+      <button type="submit" class="btn secondary">Continue as guest</button>
+    </form>
+  </div>
+
+  <details style="margin-top:1rem;">
+    <summary>Administrator sign in</summary>
+    <form method="post" action="{{ url_for('admin_login_form') }}" style="margin-top:1rem;max-width:28rem;">
+      <div class="field">
+        <label for="admin-username">Username</label>
+        <input type="text" id="admin-username" name="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn secondary">Open admin dashboard</button>
+    </form>
+  </details>
+</section>
+{% endif %}
+
 <div class="card">
   <div class="feature-row">
     <div class="num" aria-hidden="true">1</div>
