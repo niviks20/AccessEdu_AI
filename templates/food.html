@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Food Ordering{% endblock %}
+{% block content %}
+<h1>Food Ordering</h1>
+<p>Order from the canteen menu below — no queue, no reading a physical board.</p>
+
+<div class="card">
+  <form id="food-form">
+    <fieldset style="border:none;padding:0;margin:0 0 1rem;">
+      <legend class="field label" style="font-weight:700;margin-bottom:.5em;">Choose items</legend>
+      <label style="display:block;margin-bottom:.5em;"><input type="checkbox" name="items" value="Idli (2 pcs)" style="width:auto;"> Idli (2 pcs) — ₹30</label>
+      <label style="display:block;margin-bottom:.5em;"><input type="checkbox" name="items" value="Pongal" style="width:auto;"> Pongal — ₹35</label>
+      <label style="display:block;margin-bottom:.5em;"><input type="checkbox" name="items" value="Veg meals" style="width:auto;"> Veg meals — ₹60</label>
+      <label style="display:block;margin-bottom:.5em;"><input type="checkbox" name="items" value="Coffee" style="width:auto;"> Coffee — ₹15</label>
+      <label style="display:block;margin-bottom:.5em;"><input type="checkbox" name="items" value="Bottled water" style="width:auto;"> Bottled water — ₹15</label>
+    </fieldset>
+    <button type="submit" class="btn">Place order</button>
+    <div id="food-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+
+<h2 style="margin-top:2rem;">Recent orders</h2>
+<ul class="list-plain" id="food-list"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+document.getElementById("food-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var items = Array.from(document.querySelectorAll('input[name="items"]:checked')).map(function (i) { return i.value; });
+  var status = document.getElementById("food-status");
+  if (!items.length) { Toolkit.setStatus(status, "Please select at least one item.", true); return; }
+  Toolkit.setStatus(status, "Placing your order…", false);
+  Toolkit.postJSON("/api/food/order", { items: items }).then(function (res) {
+    if (!res.ok) { Toolkit.setStatus(status, res.data.message || "Something went wrong.", true); return; }
+    Toolkit.setStatus(status, "Order placed. Your order ID is " + res.data.order_id + ".", false);
+    document.querySelectorAll('input[name="items"]').forEach(function (i) { i.checked = false; });
+    loadList();
+  });
+});
+function loadList(){
+  Toolkit.refreshList("/api/food/list", "food-list", function (r) {
+    return "<li><strong>" + r.order_id + "</strong> — " + r.items + '<span class="chip" style="margin-left:.5rem;">' + r.status + "</span></li>";
+  }, "No orders yet.");
+}
+loadList();
+</script>
+{% endblock %}

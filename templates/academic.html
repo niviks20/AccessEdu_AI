@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}AI Academic Bot{% endblock %}
+{% block content %}
+<h1>AI Academic Bot</h1>
+<p>Pick a subject, unit and topic from material your faculty has indexed. Every answer can be read aloud, and Practice mode lets you answer out loud.</p>
+
+{% if not groq_configured %}
+<div class="banner danger" role="alert">
+  The AI engine key (<code>GROQ_API_KEY</code>) is not set on the server, so lessons, notes and practice
+  cannot be generated yet. Ask an admin to add it to <code>.env</code>.
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="grid cols-4" style="align-items:end;">
+    <div class="field" style="margin-bottom:0;">
+      <label for="subject-select">Subject</label>
+      <select id="subject-select"><option value="">Loading…</option></select>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label for="unit-select">Unit</label>
+      <select id="unit-select"><option value="">Select subject first</option></select>
+    </div>
+    <div class="field" style="margin-bottom:0; grid-column:span 2;">
+      <label for="topic-select">Topic</label>
+      <select id="topic-select"><option value="">Select unit first</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Academic bot modes" style="margin-top:1.25rem;">
+  <button class="tab" role="tab" id="tab-learn" aria-selected="true" aria-controls="panel-learn">Learn</button>
+  <button class="tab" role="tab" id="tab-notes" aria-selected="false" aria-controls="panel-notes">Exam Notes</button>
+  <button class="tab" role="tab" id="tab-practice" aria-selected="false" aria-controls="panel-practice">Voice Practice</button>
+</div>
+
+<section id="panel-learn" role="tabpanel" aria-labelledby="tab-learn">
+  <div class="card">
+    <button id="learn-btn" class="btn" disabled>Generate lesson</button>
+    <div id="learn-status" class="live-region" aria-live="polite"></div>
+    <div id="learn-output" class="output-block" style="margin-top:1rem;"></div>
+  </div>
+</section>
+
+<section id="panel-notes" role="tabpanel" aria-labelledby="tab-notes" hidden>
+  <div class="card">
+    <button id="notes-btn" class="btn" disabled>Generate 14‑mark answer</button>
+    <div id="notes-status" class="live-region" aria-live="polite"></div>
+    <div id="notes-output" class="output-block" style="margin-top:1rem;"></div>
+  </div>
+</section>
+
+<section id="panel-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+  <div class="card">
+    <button id="practice-start-btn" class="btn" disabled>Start viva practice (5 questions)</button>
+    <div id="practice-area" hidden style="margin-top:1rem;">
+      <p class="chip" id="practice-progress">Question 1 of 5</p>
+      <h2 id="practice-question" style="font-size:1.2rem;"></h2>
+      <button type="button" class="speak-btn needs-tts" data-speak-target="practice-question">🔊 Hear question again</button>
+
+      <div class="field" style="margin-top:1rem;">
+        <label for="practice-answer">Your answer (speak or type)</label>
+        <div style="display:flex;gap:.75rem;align-items:center;">
+          <button type="button" id="practice-mic" class="mic-btn needs-stt" aria-pressed="false" aria-label="Start voice answer">🎤</button>
+          <textarea id="practice-answer" style="flex:1;"></textarea>
+        </div>
+      </div>
+      <button id="practice-submit" class="btn accent">Submit answer</button>
+      <div id="practice-status" class="live-region" aria-live="polite"></div>
+
+      <div id="practice-feedback" style="margin-top:1rem;"></div>
+      <button id="practice-next" class="btn secondary" hidden>Next question</button>
+    </div>
+    <div id="practice-done" hidden class="banner positive">
+      <strong>Practice session complete.</strong> <span id="practice-summary"></span>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/academic.js') }}"></script>
+{% endblock %}

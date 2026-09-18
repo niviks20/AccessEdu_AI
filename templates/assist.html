@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Mobility &amp; Transport Assistance{% endblock %}
+{% block content %}
+<h1>Mobility &amp; Transport Assistance</h1>
+<p>Request a wheelchair escort or an accessible shuttle between two points on campus. A staff member will be notified.</p>
+
+<div class="card">
+  <form id="assist-form">
+    <div class="field">
+      <label for="kind">Type of assistance</label>
+      <select id="kind" name="kind">
+        <option value="wheelchair">Wheelchair assistance</option>
+        <option value="shuttle">Accessible shuttle / low-floor bus</option>
+      </select>
+    </div>
+    <div class="field"><label for="name">Your name</label><input type="text" id="name" name="name" required></div>
+    <div class="grid cols-2">
+      <div class="field"><label for="from_location">Pick-up point</label><input type="text" id="from_location" name="from_location" required></div>
+      <div class="field"><label for="to_location">Destination</label><input type="text" id="to_location" name="to_location" required></div>
+    </div>
+    <div class="field"><label for="needed_time">When do you need this?</label><input type="text" id="needed_time" name="needed_time" placeholder="e.g. Now, or 2:00 PM today" required></div>
+    <button type="submit" class="btn">Send request</button>
+    <div id="assist-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+
+<h2 style="margin-top:2rem;">Recent requests</h2>
+<ul class="list-plain" id="assist-list"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+Toolkit.initForm({
+  formId: "assist-form", statusId: "assist-status", postUrl: "/api/assist/request",
+  onSuccess: function (data, form) {
+    Toolkit.setStatus(document.getElementById("assist-status"), "Request sent. Reference: " + data.request_id + ".", false);
+    form.reset();
+    loadList();
+  }
+});
+function loadList(){
+  Toolkit.refreshList("/api/assist/list", "assist-list", function (r) {
+    return "<li><strong>" + r.request_id + "</strong> — " + r.kind + '<span class="chip" style="margin-left:.5rem;">' + r.status + "</span>" +
+      "<p style='margin:.3rem 0 0;color:var(--ink-soft);'>" + r.from_location + " → " + r.to_location + " · " + r.needed_time + "</p></li>";
+  }, "No requests yet.");
+}
+loadList();
+</script>
+{% endblock %}

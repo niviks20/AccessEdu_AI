@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Good to see you</h1>
+<p>Choose where you want to go. Every page here works with your keyboard, a screen reader, or your voice.</p>
+
+<div class="card">
+  <div class="feature-row">
+    <div class="num" aria-hidden="true">1</div>
+    <div>
+      <a class="feature-link" href="{{ url_for('academic_home') }}">AI Academic Bot</a>
+      <p>Turns your unit PDFs into lessons, 14‑mark exam notes, and a spoken viva‑practice session, with read‑aloud on every answer.</p>
+    </div>
+  </div>
+  <div class="feature-row">
+    <div class="num" aria-hidden="true">2</div>
+    <div>
+      <a class="feature-link" href="{{ url_for('accesspath_home') }}">AccessPath‑AI</a>
+      <p>Find accessible routes across campus — ramps, lifts, accessible toilets and rest points — with step‑by‑step directions you can hear.</p>
+    </div>
+  </div>
+  <div class="feature-row">
+    <div class="num" aria-hidden="true">3</div>
+    <div>
+      <a class="feature-link" href="{{ url_for('communication_home') }}">Communication</a>
+      <p>Live speech‑to‑text captioning, text‑to‑speech for mute students, and a quick‑phrase board for fast, one‑tap communication.</p>
+    </div>
+  </div>
+  <div class="feature-row">
+    <div class="num" aria-hidden="true">4</div>
+    <div>
+      <a class="feature-link" href="{{ url_for('toolkit_home') }}">Campus Toolkit</a>
+      <p>Outpasses, exam slot booking, food ordering, wheelchair assistance requests, bus/shuttle help and campus announcements.</p>
+    </div>
+  </div>
+</div>
+
+<div class="banner danger" style="margin-top:1.5rem;">
+  <strong>In an emergency,</strong> go straight to <a href="{{ url_for('sos') }}">Emergency SOS</a> — it works in one tap or one voice command.
+</div>
+{% endblock %}

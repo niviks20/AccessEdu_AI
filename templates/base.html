@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17324F">
+<meta name="description" content="AccessEdu accessibility platform for students and campus services.">
+<title>{% block title %}AccessEdu{% endblock %} · Paavai Engineering College</title>
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="shell">
+
+  <header class="topbar" role="banner">
+    <a class="brand" href="{{ url_for('home') }}">
+      <span class="brand-mark" aria-hidden="true">AE</span>
+      <span>AccessEdu <span class="sr-only">— Paavai Engineering College</span></span>
+    </a>
+    <div class="topbar-tools" role="toolbar" aria-label="Accessibility tools">
+      <button type="button" id="lc-toggle" class="tool-btn" aria-label="Change language" data-i18n="languageLabel">EN</button>
+      <button type="button" id="hc-toggle" class="tool-btn" aria-pressed="false" aria-label="Toggle high contrast mode">
+        <span aria-hidden="true">◐</span> <span data-i18n="highContrast">High contrast</span>
+      </button>
+      <button type="button" id="text-smaller" class="tool-btn" aria-label="Decrease text size">A−</button>
+      <button type="button" id="text-bigger" class="tool-btn" aria-label="Increase text size">A+</button>
+      <button type="button" id="read-toggle" class="tool-btn needs-tts" aria-pressed="false" aria-label="Read page aloud">
+        <span aria-hidden="true">🔊</span> <span data-i18n="readPage">Read page</span>
+      </button>
+      <button type="button" id="voice-assist-toggle" class="tool-btn needs-stt" aria-pressed="false" aria-label="Toggle voice assistant">
+        <span aria-hidden="true">🎙</span> <span data-i18n="voiceAssist">Voice assist</span>
+      </button>
+      {% if session.get('is_student') or session.get('is_admin') or session.get('is_guest') %}
+      <a class="tool-btn" href="{{ url_for('logout_page') }}" aria-label="Log out of AccessEdu"><span data-i18n="logout">Log out</span></a>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="body-row">
+    {% if session.get('is_student') or session.get('is_admin') or session.get('is_guest') %}
+    <nav class="sidenav" aria-label="Main sections">
+      <a href="{{ url_for('home') }}" {% if active=='home' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">⌂</span> <span data-i18n="dashboard">Dashboard</span></a>
+      <hr>
+      <a href="{{ url_for('academic_home') }}" {% if active=='academic' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">🎓</span> AI Academic Bot</a>
+      <a href="{{ url_for('accesspath_home') }}" {% if active=='accesspath' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">🧭</span> AccessPath‑AI</a>
+      <a href="{{ url_for('communication_home') }}" {% if active=='communication' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">💬</span> <span data-i18n="communication">Communication</span></a>
+      <a href="{{ url_for('toolkit_home') }}" {% if active=='toolkit' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">🏫</span> <span data-i18n="toolkit">Campus Toolkit</span></a>
+      <hr>
+      <a href="{{ url_for('sos') }}" {% if active=='sos' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">🆘</span> <span data-i18n="emergency">Emergency SOS</span></a>
+      {% if session.get('is_admin') %}
+      <a href="{{ url_for('admin_page') }}" {% if active=='admin' %}aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">⚙</span> <span data-i18n="admin">Admin</span></a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    <main id="main-content" class="main" role="main" tabindex="-1">
+      <div class="main-inner">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <p class="footer-note">AccessEdu · Built for Paavai Engineering College, Namakkal · Operable by keyboard, voice and screen reader</p>
+</div>
+
+<div id="a11y-announcer" class="sr-only live-region" aria-live="polite" role="status"></div>
+<div id="voice-assist-help" class="sr-only" aria-live="polite">Voice commands: open dashboard, open academic, open communication, open toolkit, open emergency, read page, increase text, decrease text, and high contrast.</div>
+
+<script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Communication{% endblock %}
+{% block content %}
+<h1>Communication</h1>
+<p>Three tools in one place: live captions for a deaf student following a conversation, a voice for a mute student typing what they want to say, and one‑tap phrases for quick exchanges.</p>
+
+<div class="tabs" role="tablist" aria-label="Communication tools">
+  <button class="tab" role="tab" id="tab-caption" aria-selected="true" aria-controls="panel-caption">Live Captions</button>
+  <button class="tab" role="tab" id="tab-speak" aria-selected="false" aria-controls="panel-speak">Type to Speak</button>
+  <button class="tab" role="tab" id="tab-phrases" aria-selected="false" aria-controls="panel-phrases">Quick Phrases</button>
+</div>
+
+<section id="panel-caption" role="tabpanel" aria-labelledby="tab-caption">
+  <div class="card">
+    <h2 style="font-size:1.1rem;">Live captions</h2>
+    <p>Turns speech in the room into text on screen, in real time, for a deaf or hard-of-hearing student to follow.</p>
+    <button type="button" id="caption-mic" class="mic-btn needs-stt" aria-pressed="false" aria-label="Start live captions">🎤</button>
+    <p id="caption-hint" style="margin-top:.5rem;color:var(--ink-soft);">Tap the microphone to start.</p>
+    <div id="caption-transcript" class="transcript" style="margin-top:1rem;" aria-live="polite"></div>
+    <button type="button" id="caption-clear" class="btn secondary" style="margin-top:.75rem;">Clear</button>
+  </div>
+</section>
+
+<section id="panel-speak" role="tabpanel" aria-labelledby="tab-speak" hidden>
+  <div class="card">
+    <h2 style="font-size:1.1rem;">Type to speak</h2>
+    <p>Type what you want to say and your device will speak it aloud, for a mute or non-verbal student to communicate.</p>
+    <div class="field">
+      <label for="speak-input">Message</label>
+      <textarea id="speak-input" placeholder="Type here…"></textarea>
+    </div>
+    <button type="button" id="speak-btn" class="btn accent needs-tts">🔊 Speak this</button>
+    <div class="field" style="margin-top:1rem;">
+      <label for="speak-rate">Speaking speed</label>
+      <input type="range" id="speak-rate" min="0.6" max="1.4" step="0.1" value="1" style="width:100%;">
+    </div>
+  </div>
+</section>
+
+<section id="panel-phrases" role="tabpanel" aria-labelledby="tab-phrases" hidden>
+  <div class="card">
+    <h2 style="font-size:1.1rem;">Quick phrases</h2>
+    <p>Tap a phrase to speak it instantly — useful for fast, common exchanges.</p>
+    <div class="phrase-grid" id="phrase-board">
+      <button type="button" class="phrase-btn needs-tts">Yes</button>
+      <button type="button" class="phrase-btn needs-tts">No</button>
+      <button type="button" class="phrase-btn needs-tts">Please wait</button>
+      <button type="button" class="phrase-btn needs-tts">Thank you</button>
+      <button type="button" class="phrase-btn needs-tts">I need help</button>
+      <button type="button" class="phrase-btn needs-tts">Can you repeat that, please?</button>
+      <button type="button" class="phrase-btn needs-tts">I don't understand</button>
+      <button type="button" class="phrase-btn needs-tts">One moment, please</button>
+      <button type="button" class="phrase-btn needs-tts">Can you write it down?</button>
+      <button type="button" class="phrase-btn needs-tts">I'm a student here</button>
+      <button type="button" class="phrase-btn needs-tts">Where is the nearest toilet?</button>
+      <button type="button" class="phrase-btn needs-tts">I need medical help</button>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/communication.js') }}"></script>
+{% endblock %}

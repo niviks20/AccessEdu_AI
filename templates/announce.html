@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<h1>Announcements</h1>
+<p>Campus notices, most recent first.</p>
+
+{% if session.get('is_admin') %}
+<div class="card">
+  <h2 style="font-size:1.1rem;">Post an announcement</h2>
+  <form id="announce-form">
+    <div class="field"><label for="title">Title</label><input type="text" id="title" name="title" required></div>
+    <div class="field"><label for="category">Category</label><input type="text" id="category" name="category" placeholder="e.g. Academic"></div>
+    <div class="field"><label for="msg">Message</label><textarea id="msg" name="msg" required></textarea></div>
+    <button type="submit" class="btn">Post</button>
+    <div id="announce-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+{% endif %}
+
+<ul class="list-plain" id="announce-list" style="margin-top:1.5rem;"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+{% if session.get('is_admin') %}
+Toolkit.initForm({
+  formId: "announce-form", statusId: "announce-status", postUrl: "/api/announcements/add",
+  onSuccess: function (data, form) {
+    Toolkit.setStatus(document.getElementById("announce-status"), "Announcement posted.", false);
+    form.reset();
+    loadList();
+  }
+});
+{% endif %}
+function loadList(){
+  Toolkit.refreshList("/api/announcements", "announce-list", function (r) {
+    return "<li><strong>" + r.title + "</strong> " + '<span class="chip">' + (r.category || "General") + "</span>" +
+      "<p style='margin:.3rem 0 0;'>" + r.msg + "</p>" +
+      "<p style='margin:.2rem 0 0;color:var(--ink-soft);font-size:.9rem;'>" + r.created_at + "</p></li>";
+  }, "No announcements yet.");
+}
+loadList();
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}AccessPath‑AI{% endblock %}
+{% block content %}
+<h1>AccessPath‑AI</h1>
+<p>Get a step‑by‑step accessible route across campus, with directions you can hear as well as read. Distances and accessibility notes come from the campus wayfinding directory below — ask admin staff to update it if a detail is wrong.</p>
+
+<div class="card">
+  <div class="grid cols-2">
+    <div class="field" style="margin-bottom:0;">
+      <label for="from-select">Starting point</label>
+      <select id="from-select">
+        {% for loc in locations %}<option value="{{ loc.id }}">{{ loc.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label for="to-select">Destination</label>
+      <select id="to-select">
+        {% for loc in locations %}<option value="{{ loc.id }}" {% if loop.index==2 %}selected{% endif %}>{{ loc.name }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="field" style="margin-top:1rem;">
+    <label style="display:flex;align-items:center;gap:.5em;font-weight:700;">
+      <input type="checkbox" id="accessible-only" checked style="width:auto;">
+      Only use step‑free, wheelchair‑accessible paths
+    </label>
+  </div>
+  <button id="find-route-btn" class="btn">Find route</button>
+</div>
+
+<div id="route-result" class="card" style="margin-top:1rem;" hidden>
+  <h2 id="route-title" style="font-size:1.15rem;"></h2>
+  <button type="button" id="route-speak-all" class="speak-btn needs-tts">🔊 Read full route aloud</button>
+  <ol class="list-plain" id="route-steps" style="margin-top:1rem;"></ol>
+</div>
+<div id="route-error" class="banner danger" hidden></div>
+
+<h2 style="margin-top:2rem;">Accessible amenities directory</h2>
+<ul class="list-plain">
+  {% for loc in locations %}
+  <li>
+    <strong>{{ loc.name }}</strong> <span class="chip">{{ loc.category }}</span>
+    <p style="margin:.3rem 0 0;color:var(--ink-soft);">{{ loc.notes }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/accesspath.js') }}"></script>
+{% endblock %}

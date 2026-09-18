@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Outpass{% endblock %}
+{% block content %}
+<h1>Outpass</h1>
+<p>Apply for an outpass. It's reviewed by the warden's office; check back here for the status.</p>
+
+<div class="card">
+  <form id="outpass-form">
+    <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
+    <div class="field"><label for="dept">Department</label><input type="text" id="dept" name="dept" required></div>
+    <div class="field"><label for="reason">Reason</label><textarea id="reason" name="reason" required></textarea></div>
+    <button type="submit" class="btn">Submit application</button>
+    <div id="outpass-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+
+<h2 style="margin-top:2rem;">Recent outpasses</h2>
+<ul class="list-plain" id="outpass-list"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+Toolkit.initForm({
+  formId: "outpass-form", statusId: "outpass-status", postUrl: "/api/outpass/apply",
+  onSuccess: function (data, form) {
+    Toolkit.setStatus(document.getElementById("outpass-status"), "Application submitted. Your outpass ID is " + data.outpass_id + ".", false);
+    form.reset();
+    loadList();
+  }
+});
+function loadList(){
+  Toolkit.refreshList("/api/outpass/list", "outpass-list", function (r) {
+    return "<li><strong>" + r.pass_id + "</strong> — " + r.name + " (" + r.dept + ") — " +
+      '<span class="chip">' + r.status + "</span><p style='margin:.3rem 0 0;color:var(--ink-soft);'>" + r.reason + " · " + r.created_at + "</p></li>";
+  }, "No outpasses submitted yet.");
+}
+loadList();
+</script>
+{% endblock %}

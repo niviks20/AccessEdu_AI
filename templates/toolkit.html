@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Campus Toolkit{% endblock %}
+{% block content %}
+<h1>Campus Toolkit</h1>
+<p>Everyday campus services, built to work with a keyboard, screen reader or voice.</p>
+<div class="card">
+  <div class="feature-row"><div class="num" aria-hidden="true">1</div><div>
+    <a class="feature-link" href="{{ url_for('outpass') }}">Outpass</a>
+    <p>Apply for a hostel or campus outpass and track its status.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">2</div><div>
+    <a class="feature-link" href="{{ url_for('slot') }}">Exam / Counter Slot Booking</a>
+    <p>Book a time slot and get a token instantly.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">3</div><div>
+    <a class="feature-link" href="{{ url_for('food') }}">Food Ordering</a>
+    <p>Order from the canteen without needing to queue or read a physical menu board.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">4</div><div>
+    <a class="feature-link" href="{{ url_for('assist') }}">Mobility &amp; Transport Assistance</a>
+    <p>Request wheelchair assistance or an accessible shuttle between two points on campus.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">5</div><div>
+    <a class="feature-link" href="{{ url_for('marketplace') }}">Marketplace</a>
+    <p>Buy, sell or give away books, equipment and other items within campus.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">6</div><div>
+    <a class="feature-link" href="{{ url_for('announce') }}">Announcements</a>
+    <p>Read the latest campus notices, in plain, screen-reader-friendly text.</p></div></div>
+  <div class="feature-row"><div class="num" aria-hidden="true">7</div><div>
+    <a class="feature-link" href="{{ url_for('attendance') }}">Attendance</a>
+    <p>A quick view of your attendance summary.</p></div></div>
+</div>
+{% endblock %}

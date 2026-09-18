@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Marketplace{% endblock %}
+{% block content %}
+<h1>Marketplace</h1>
+<p>Buy, sell or give away books, equipment and other items within campus.</p>
+
+<div class="card">
+  <h2 style="font-size:1.1rem;">Post a listing</h2>
+  <form id="market-form">
+    <div class="grid cols-2">
+      <div class="field"><label for="title">Item title</label><input type="text" id="title" name="title" required></div>
+      <div class="field"><label for="category">Category</label><input type="text" id="category" name="category" placeholder="e.g. Textbooks"></div>
+      <div class="field"><label for="item_type">Type</label>
+        <select id="item_type" name="item_type"><option>Sell</option><option>Give away</option><option>Exchange</option></select>
+      </div>
+      <div class="field"><label for="price">Price</label><input type="text" id="price" name="price" placeholder="e.g. ₹200 or Free"></div>
+      <div class="field"><label for="seller">Your name</label><input type="text" id="seller" name="seller" required></div>
+    </div>
+    <button type="submit" class="btn">Publish listing</button>
+    <div id="market-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+
+<h2 style="margin-top:2rem;">Current listings</h2>
+<ul class="list-plain" id="market-list"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+Toolkit.initForm({
+  formId: "market-form", statusId: "market-status", postUrl: "/api/marketplace/add",
+  onSuccess: function (data, form) {
+    Toolkit.setStatus(document.getElementById("market-status"), "Listing published.", false);
+    form.reset();
+    loadList();
+  }
+});
+function loadList(){
+  Toolkit.refreshList("/api/marketplace/list", "market-list", function (r) {
+    return "<li><strong>" + r.title + "</strong> — " + (r.price || "Contact seller") +
+      '<span class="chip" style="margin-left:.5rem;">' + r.item_type + "</span>" +
+      "<p style='margin:.3rem 0 0;color:var(--ink-soft);'>" + (r.category || "") + " · seller: " + r.seller + "</p></li>";
+  }, "No listings yet.");
+}
+loadList();
+</script>
+{% endblock %}

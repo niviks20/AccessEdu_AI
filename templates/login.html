@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="login-shell">
+  <section class="login-hero">
+    <div class="hero-badge" data-i18n="heroBadge">Inclusive campus access</div>
+    <h1 data-i18n="welcomeTitle">Welcome to AccessEdu</h1>
+    <p data-i18n="welcomeText">A modern accessibility platform built for students, staff, and visitors to access learning support, guidance, communication tools, and campus services with confidence.</p>
+
+    <div class="hero-stats">
+      <div>
+        <strong>4</strong>
+        <span data-i18n="statFeatures">Core features</span>
+      </div>
+      <div>
+        <strong>100%</strong>
+        <span data-i18n="statAccess">Accessible</span>
+      </div>
+      <div>
+        <strong>24/7</strong>
+        <span data-i18n="statSupport">Smart support</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="login-panel card">
+    {% if error %}
+    <div class="banner danger" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <div class="form-section">
+      <h2 data-i18n="studentGuestTitle">Student / Guest access</h2>
+      <form method="post" action="{{ url_for('student_login_form') }}">
+        <button type="submit" class="btn big" data-i18n="studentLogin">Continue as student</button>
+      </form>
+      <form method="post" action="{{ url_for('guest_login_form') }}" class="inline-form">
+        <button type="submit" class="btn secondary big" data-i18n="guestLogin">Continue as guest</button>
+      </form>
+    </div>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <div class="form-section">
+      <h2 data-i18n="adminTitle">Staff / Admin login</h2>
+      <form method="post" action="{{ url_for('admin_login_form') }}">
+        <div class="field">
+          <label for="username" data-i18n="usernameLabel">Username</label>
+          <input type="text" id="username" name="username" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password" data-i18n="passwordLabel">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn secondary big" data-i18n="adminLogin">Log in as admin</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

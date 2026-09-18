@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Emergency SOS{% endblock %}
+{% block content %}
+<h1>Emergency SOS</h1>
+<p>Press the button below to alert campus security immediately. This also works with just your keyboard (Tab, then Enter) or your voice reader.</p>
+
+<div class="card">
+  <button type="button" id="sos-btn" class="btn danger big" style="font-size:1.4rem;padding:1.2em;">🆘 Send emergency alert</button>
+  <div class="field" style="margin-top:1rem;">
+    <label for="sos-message">Add a short message (optional)</label>
+    <textarea id="sos-message" placeholder="e.g. I need medical help near the library"></textarea>
+  </div>
+  <div id="sos-status" class="live-region" aria-live="assertive" style="margin-top:.5rem;font-weight:700;"></div>
+</div>
+
+<div class="banner info" style="margin-top:1.5rem;">
+  <strong>Campus emergency numbers</strong>
+  <ul class="list-plain">
+    <li>Campus Security: <a href="tel:+910000000000">+91 00000 00000</a></li>
+    <li>Medical Room: <a href="tel:+910000000001">+91 00000 00001</a></li>
+    <li>Warden (Hostel): <a href="tel:+910000000002">+91 00000 00002</a></li>
+  </ul>
+  <p style="margin:.5rem 0 0;color:var(--ink-soft);">Replace these with the college's real numbers in <code>templates/sos.html</code>.</p>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+document.getElementById("sos-btn").addEventListener("click", function () {
+  var status = document.getElementById("sos-status");
+  var message = document.getElementById("sos-message").value.trim();
+  status.textContent = "Sending alert…";
+
+  function send(location) {
+    fetch("/api/sos/alert", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ location: location, message: message })
+    }).then(function (r) { return r.json(); }).then(function (data) {
+      var text = data.message || "Alert sent.";
+      status.textContent = "Alert sent (" + data.alert_id + "). " + text;
+      if (window.AccessEdu) window.AccessEdu.speak("Emergency alert sent. " + text);
+    }).catch(function () {
+      status.textContent = "Could not send the alert. Please call campus security directly.";
+    });
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function (pos) { send(pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5)); },
+      function () { send("Location not shared"); },
+      { timeout: 4000 }
+    );
+  } else {
+    send("Location not available");
+  }
+});
+</script>
+{% endblock %}

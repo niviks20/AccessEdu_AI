@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h1>Admin overview</h1>
+
+<h2 style="font-size:1.1rem;">Emergency SOS alerts</h2>
+<ul class="list-plain" id="sos-admin-list"><li>Loading…</li></ul>
+
+<h2 style="font-size:1.1rem;margin-top:2rem;">Outpasses</h2>
+<ul class="list-plain" id="outpass-admin-list"><li>Loading…</li></ul>
+
+<h2 style="font-size:1.1rem;margin-top:2rem;">Mobility &amp; transport requests</h2>
+<ul class="list-plain" id="assist-admin-list"><li>Loading…</li></ul>
+
+<p style="margin-top:2rem;"><a class="btn secondary" href="{{ url_for('announce') }}">Post an announcement</a></p>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+Toolkit.refreshList("/api/sos/list", "sos-admin-list", function (r) {
+  return "<li><strong>" + r.alert_id + "</strong> — " + r.name + '<span class="chip danger" style="margin-left:.5rem;">' + r.status + "</span>" +
+    "<p style='margin:.3rem 0 0;color:var(--ink-soft);'>" + (r.message || "No message") + " · " + r.location + " · " + r.created_at + "</p></li>";
+}, "No alerts.");
+
+Toolkit.refreshList("/api/outpass/list", "outpass-admin-list", function (r) {
+  return "<li><strong>" + r.pass_id + "</strong> — " + r.name + " (" + r.dept + ")" +
+    '<span class="chip" style="margin-left:.5rem;">' + r.status + "</span></li>";
+}, "No outpasses.");
+
+Toolkit.refreshList("/api/assist/list", "assist-admin-list", function (r) {
+  return "<li><strong>" + r.request_id + "</strong> — " + r.kind + " for " + r.name +
+    '<span class="chip" style="margin-left:.5rem;">' + r.status + "</span></li>";
+}, "No requests.");
+</script>
+{% endblock %}

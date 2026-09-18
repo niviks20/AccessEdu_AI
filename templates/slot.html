@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Slot Booking{% endblock %}
+{% block content %}
+<h1>Exam / Counter Slot Booking</h1>
+<p>Book a time slot for an exam accommodation session or an admin counter, and get a token immediately.</p>
+
+<div class="card">
+  <form id="slot-form">
+    <div class="field"><label for="regno">Register number</label><input type="text" id="regno" name="regno" required></div>
+    <div class="field"><label for="purpose">Purpose</label>
+      <select id="purpose" name="purpose">
+        <option>Exam accommodation — extra time</option>
+        <option>Exam accommodation — scribe request</option>
+        <option>Admin counter — certificate</option>
+        <option>Admin counter — fee payment</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label for="timeslot">Preferred time slot</label><input type="text" id="timeslot" name="timeslot" placeholder="e.g. Mon 10:00–10:30 AM" required></div>
+    <button type="submit" class="btn">Book slot</button>
+    <div id="slot-status" class="live-region" aria-live="polite"></div>
+  </form>
+</div>
+
+<h2 style="margin-top:2rem;">Recent bookings</h2>
+<ul class="list-plain" id="slot-list"><li>Loading…</li></ul>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/toolkit.js') }}"></script>
+<script>
+Toolkit.initForm({
+  formId: "slot-form", statusId: "slot-status", postUrl: "/api/book-slot",
+  onSuccess: function (data, form) {
+    Toolkit.setStatus(document.getElementById("slot-status"), data.message, false);
+    form.reset();
+    loadList();
+  }
+});
+function loadList(){
+  Toolkit.refreshList("/api/slots/list", "slot-list", function (r) {
+    return "<li><strong>" + r.token + "</strong> — " + r.purpose + '<span class="chip positive" style="margin-left:.5rem;">' + r.status + "</span>" +
+      "<p style='margin:.3rem 0 0;color:var(--ink-soft);'>" + r.regno + " · " + r.timeslot + "</p></li>";
+  }, "No bookings yet.");
+}
+loadList();
+</script>
+{% endblock %}
