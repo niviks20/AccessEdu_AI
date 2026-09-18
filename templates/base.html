@@ -89,6 +89,9 @@
   </div>
 
   <nav class="mobile-footer-nav" aria-label="Mobile feature navigation">
+    <a href="{{ url_for('home') }}" {% if active=='home' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">⌂</span><span>Home</span>
+    </a>
     <a href="{{ url_for('academic_home') }}" {% if active=='academic' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">🎓</span><span>Academic</span>
     </a>
@@ -103,6 +106,9 @@
     </a>
     <a href="{{ url_for('toolkit_home') }}" {% if active=='toolkit' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">🏫</span><span>Toolkit</span>
+    </a>
+    <a href="{{ url_for('announce') }}" {% if active=='announcements' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">📣</span><span>Announcements</span>
     </a>
   </nav>
 

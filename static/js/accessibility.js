@@ -567,16 +567,19 @@
     };
 
     voiceRecognition.onerror = function (event) {
-      voiceListening = false;
+      var permissionError = event.error === "not-allowed" || event.error === "service-not-allowed";
+      if (permissionError) voiceListening = false;
       var btn = document.getElementById("voice-assist-toggle");
       if (btn) btn.setAttribute("aria-pressed", "false");
       var mic = document.getElementById("voice-command-mic");
       if (mic) mic.setAttribute("aria-pressed", "false");
-      setVoiceStatus("error", event.error === "not-allowed" ? "Microphone permission is required" : "Voice input is unavailable");
-      announce(event.error === "not-allowed" ? "Please allow microphone access for voice commands." : "Voice assistant is unavailable.");
-      if (event.error !== "not-allowed" && event.error !== "service-not-allowed") {
+      setVoiceStatus("error", permissionError ? "Microphone permission is required" : "Recovering voice input...");
+      announce(permissionError ? "Please allow microphone access for voice commands." : "Voice assistant is recovering.");
+      if (!permissionError) {
         window.setTimeout(function () {
-          if (!voiceListening) toggleVoiceAssistant(true, true);
+          if (voiceListening && voiceRecognition) {
+            try { voiceRecognition.start(); } catch (e) {}
+          }
         }, 1200);
       }
     };
@@ -808,8 +811,10 @@
         speak("How can I help you?", { lang: getLangCode(currentLang) });
         try { localStorage.setItem(GREETING_KEY, "1"); } catch (e) {}
       }
-      if ((window.SpeechRecognition || window.webkitSpeechRecognition) && !hasGreeted) {
-        window.setTimeout(function () { toggleVoiceAssistant(true, true); }, 900);
+      if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+        window.setTimeout(function () {
+          if (!voiceListening) toggleVoiceAssistant(true, true);
+        }, hasGreeted ? 250 : 1200);
       }
     }
 

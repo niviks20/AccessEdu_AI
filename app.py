@@ -593,7 +593,7 @@ def add_marketplace():
 
 @app.route("/announce")
 def announce():
-    return render_template("announce.html", active="toolkit")
+    return render_template("announce.html", active="announcements")
 
 
 def create_system_announcement(title, message, category="System", expires_hours=24):

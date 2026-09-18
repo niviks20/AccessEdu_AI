@@ -26,7 +26,7 @@
     <p>Open AccessEdu like an app from your home screen, with a focused full-screen experience.</p>
   </div>
   <button id="install-app-button" class="btn install-app-button" type="button">Install app</button>
-  <p id="install-help" class="install-help" hidden>On iPhone or iPad, use Share, then choose “Add to Home Screen”.</p>
+  <p id="install-help" class="install-help" hidden>On Android or Chrome desktop, open the browser menu and choose “Install app” or “Add to Home screen”. On iPhone or iPad, use Share, then choose “Add to Home Screen”.</p>
 </section>
 
 <section class="voice-command-panel" aria-labelledby="voice-panel-title" data-reveal="voice-panel">
@@ -54,6 +54,19 @@
     <span id="voice-live-status" class="voice-live-status" aria-live="polite" data-i18n="readyStatus">Ready to help</span>
   </div>
   <p id="voice-transcript" class="voice-transcript" aria-live="polite"></p>
+</section>
+
+<section class="home-announcements" aria-labelledby="home-announcements-title">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">STAY INFORMED</p>
+      <h2 id="home-announcements-title">Latest announcements</h2>
+    </div>
+    <a class="text-link" href="{{ url_for('announce') }}">View all <span aria-hidden="true">→</span></a>
+  </div>
+  <div id="home-announcement-list" class="home-announcement-list" aria-live="polite">
+    <p class="announcement-loading">Loading announcements...</p>
+  </div>
 </section>
 
 <section class="home-section" aria-labelledby="features-title">
@@ -115,4 +128,44 @@
   </div>
   <a class="sos-action" href="{{ url_for('sos') }}"><span aria-hidden="true">🆘</span> Open SOS</a>
 </section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function () {
+  var list = document.getElementById("home-announcement-list");
+  if (!list) return;
+  fetch("/api/announcements").then(function (response) { return response.json(); }).then(function (payload) {
+    var items = (payload.data || []).slice(0, 3);
+    list.textContent = "";
+    if (!items.length) {
+      list.innerHTML = "<p class=\"announcement-loading\">No announcements yet.</p>";
+      return;
+    }
+    items.forEach(function (item) {
+      var article = document.createElement("article");
+      article.className = "home-announcement-item";
+      var title = document.createElement("h3");
+      title.textContent = item.title;
+      var message = document.createElement("p");
+      message.textContent = item.msg;
+      var meta = document.createElement("span");
+      meta.textContent = (item.category || "General") + " · " + (item.created_at || "");
+      article.appendChild(title);
+      article.appendChild(message);
+      article.appendChild(meta);
+      if (item.registration_url) {
+        var link = document.createElement("a");
+        link.href = item.registration_url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "Register";
+        article.appendChild(link);
+      }
+      list.appendChild(article);
+    });
+  }).catch(function () {
+    list.innerHTML = "<p class=\"announcement-loading\">Announcements are temporarily unavailable.</p>";
+  });
+})();
+</script>
 {% endblock %}
