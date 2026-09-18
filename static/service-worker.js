@@ -1,10 +1,11 @@
-const CACHE_NAME = 'accessedu-v1';
+const CACHE_NAME = 'accessedu-v2';
 const ASSETS = [
   '/',
-  '/login',
   '/static/css/style.css',
   '/static/js/accessibility.js',
-  '/static/manifest.json'
+  '/static/manifest.json',
+  '/static/icon-192.png',
+  '/static/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {

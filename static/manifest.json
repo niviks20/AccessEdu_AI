@@ -1,8 +1,10 @@
 {
   "name": "AccessEdu",
   "short_name": "AccessEdu",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#f3f7fb",
   "theme_color": "#17324f",
   "description": "Accessibility support and campus services for students and staff.",

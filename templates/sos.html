@@ -53,5 +53,14 @@ document.getElementById("sos-btn").addEventListener("click", function () {
     send("Location not available");
   }
 });
+
+try {
+  if (sessionStorage.getItem("accessedu_trigger_sos") === "1") {
+    sessionStorage.removeItem("accessedu_trigger_sos");
+    window.setTimeout(function () {
+      document.getElementById("sos-btn").click();
+    }, 500);
+  }
+} catch (e) {}
 </script>
 {% endblock %}

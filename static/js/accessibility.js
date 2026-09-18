@@ -16,6 +16,7 @@
   var transcriptBuffer = "";
   var SILENCE_TIMEOUT = 1700;
   var currentLang = "en";
+  var GREETING_KEY = "accessedu_voice_greeted";
 
   try {
     currentLang = localStorage.getItem("accessedu_lang") || "en";
@@ -153,7 +154,13 @@
     utter.onend = function () {
       setVoiceStatus("ready", "Ready to help");
       if (opts.onend) opts.onend();
+      if (voiceListening && voiceRecognition) {
+        try { voiceRecognition.start(); } catch (e) {}
+      }
     };
+    if (voiceListening && voiceRecognition) {
+      try { voiceRecognition.stop(); } catch (e) {}
+    }
     synth.cancel();
     synth.speak(utter);
   }
@@ -294,11 +301,46 @@
     announce(direction === "down" ? "Scrolled down." : "Scrolled up.");
   }
 
+  function readAnnouncements() {
+    setVoiceStatus("processing", "Checking announcements...");
+    fetch("/api/announcements").then(function (response) { return response.json(); }).then(function (data) {
+      var items = data.data || [];
+      if (!items.length) {
+        speak("There are no current announcements.");
+        return;
+      }
+      var text = items.map(function (item, index) {
+        var linkText = item.registration_url ? " Registration is available." : "";
+        return (index + 1) + ". " + item.title + ". " + item.msg + ". Posted " + item.created_at + "." + linkText;
+      }).join(" ");
+      try { sessionStorage.setItem("accessedu_last_announcements", JSON.stringify(items)); } catch (e) {}
+      speak(text);
+    }).catch(function () {
+      speak("I could not load announcements right now. Please try again.");
+    });
+  }
+
+  function openRegistrationLink() {
+    var items = [];
+    try { items = JSON.parse(sessionStorage.getItem("accessedu_last_announcements") || "[]"); } catch (e) {}
+    var item = items.find(function (entry) { return entry.registration_url; });
+    if (!item) {
+      speak("I could not find a registration link in the latest announcements.");
+      return;
+    }
+    var opened = window.open(item.registration_url, "_blank", "noopener");
+    if (!opened) window.location.assign(item.registration_url);
+    speak("Opening the registration link.");
+  }
+
   function matchCommand(rawText) {
     var command = normalizeCommand(rawText);
     if (!command) return null;
 
     var patterns = [
+      { action: "sos", target: "trigger", match: ["click sos from home page", "click sos", "send emergency alert", "trigger sos"] },
+      { action: "announcements", target: "read", match: ["is there any announcement", "are there any announcements", "read announcements", "show announcements", "announcements", "घोषणाएं", "அறிவிப்புகள்", "അറിയിപ്പുകൾ"] },
+      { action: "register", target: "open", match: ["okay register", "ok register", "open registration", "register"] },
       { action: "open", target: "home", match: ["go home", "open home", "home", "dashboard", "go to dashboard", "open dashboard", "मुखपृष्ठ", "होम", "முகப்பு", "டாஷ்போர்டு"] },
       { action: "open", target: "academic", match: ["open academic", "go to academic", "academic", "academic bot", "अकादमिक", "अकादमिक खोलें", "கல்வி", "கல்வி பக்கம்", "അക്കാദമിക്", "അക്കാദമിക് തുറക്കുക"] },
       { action: "open", target: "accesspath", match: ["open access path", "go to access path", "access path", "accesspath", "एक्सेसपाथ", "அணுகல் பாதை"] },
@@ -368,6 +410,23 @@
       var opened = "Opening " + matched.target + ".";
       announce(opened);
       speak(opened, { lang: getVoiceRecognitionLang(currentLang) });
+      return;
+    }
+
+    if (matched.action === "sos") {
+      try { sessionStorage.setItem("accessedu_trigger_sos", "1"); } catch (e) {}
+      routeTo("/sos");
+      speak("Opening emergency SOS and sending the alert.");
+      return;
+    }
+
+    if (matched.action === "announcements") {
+      readAnnouncements();
+      return;
+    }
+
+    if (matched.action === "register") {
+      openRegistrationLink();
       return;
     }
 
@@ -494,6 +553,80 @@
     if (field) field.value = transcript;
   }
 
+  function initVoiceForms() {
+    document.querySelectorAll("form[data-voice-autofill]").forEach(function (form) {
+      var fields = Array.prototype.filter.call(form.querySelectorAll("input, textarea, select"), function (field) {
+        return field.type !== "hidden" && field.type !== "submit" && field.type !== "button";
+      });
+      if (!fields.length || !window.SpeechRecognition && !window.webkitSpeechRecognition) return;
+
+      var recognition = getRecognition();
+      if (!recognition) return;
+      var index = 0;
+      var active = false;
+      var review = false;
+
+      function askNext() {
+        if (index >= fields.length) {
+          review = true;
+          var summary = fields.map(function (field) {
+            var label = form.querySelector("label[for='" + field.id + "']");
+            return (label ? label.textContent : field.name) + " as " + (field.value || "blank");
+          }).join(", ");
+          speak("You entered " + summary + ". Is this correct?", { onend: function () {
+            try { recognition.start(); } catch (e) {}
+          }});
+          return;
+        }
+        var field = fields[index];
+        var label = form.querySelector("label[for='" + field.id + "']");
+        speak("What is your " + (label ? label.textContent.toLowerCase() : field.name) + "?", { onend: function () {
+          try { recognition.start(); } catch (e) {}
+        }});
+      }
+
+      recognition.onresult = function (event) {
+        var result = event.results[event.results.length - 1];
+        if (!result || !result.isFinal) return;
+        var answer = result[0].transcript.trim();
+        document.getElementById("voice-transcript");
+        if (review) {
+          if (/^(yes|submit|correct|हाँ|हां|ஆம்|അതെ|ശരി)$/i.test(answer)) {
+            form.requestSubmit();
+          } else {
+            review = false;
+            index = 0;
+            speak("Okay. Let us enter the form again.", { onend: askNext });
+          }
+          return;
+        }
+        fields[index].value = answer;
+        fields[index].dispatchEvent(new Event("input", { bubbles: true }));
+        index += 1;
+        askNext();
+      };
+
+      var start = document.createElement("button");
+      start.type = "button";
+      start.className = "tool-btn needs-stt";
+      start.textContent = "🎙 Fill this form by voice";
+      start.addEventListener("click", function () {
+        if (active) {
+          recognition.stop();
+          active = false;
+          start.setAttribute("aria-pressed", "false");
+          return;
+        }
+        active = true;
+        index = 0;
+        review = false;
+        start.setAttribute("aria-pressed", "true");
+        speak("I will ask each field one at a time.", { onend: askNext });
+      });
+      form.insertBefore(start, form.firstChild);
+    });
+  }
+
   function toggleVoiceAssistant(autoStart) {
     var btn = document.getElementById("voice-assist-toggle");
     if (!voiceRecognition) {
@@ -594,8 +727,15 @@
 
     if (document.getElementById("voice-command-input")) {
       setVoiceStatus("ready", "Ready to help");
-      if (synth) speak("Hi, how can I help you?", { lang: getLangCode(currentLang) });
+      var hasGreeted = false;
+      try { hasGreeted = localStorage.getItem(GREETING_KEY) === "1"; } catch (e) {}
+      if (synth && !hasGreeted) {
+        speak("How can I help you?", { lang: getLangCode(currentLang) });
+        try { localStorage.setItem(GREETING_KEY, "1"); } catch (e) {}
+      }
     }
+
+    initVoiceForms();
 
     if (!synth) {
       document.querySelectorAll(".needs-tts").forEach(function (el) {

@@ -3,7 +3,7 @@ import json
 import sqlite3
 import datetime
 
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for, send_from_directory
 
 try:
     from dotenv import load_dotenv
@@ -41,8 +41,13 @@ def init_db():
 
     c.execute("""CREATE TABLE IF NOT EXISTS announcements (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT, category TEXT, msg TEXT, created_at TEXT
+                    title TEXT, category TEXT, msg TEXT, registration_url TEXT,
+                    created_at TEXT
                 )""")
+    try:
+        c.execute("ALTER TABLE announcements ADD COLUMN registration_url TEXT")
+    except sqlite3.OperationalError:
+        pass
 
     c.execute("""CREATE TABLE IF NOT EXISTS outpasses (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,6 +126,11 @@ def require_login():
 @app.route("/")
 def home():
     return render_template("index.html", active="home", admin_error=request.args.get("error", ""))
+
+
+@app.route("/service-worker.js")
+def service_worker():
+    return send_from_directory(os.path.join(BASE_DIR, "static"), "service-worker.js", mimetype="application/javascript")
 
 
 @app.route("/login")
@@ -578,8 +588,6 @@ def add_marketplace():
 
 @app.route("/announce")
 def announce():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("announce.html", active="toolkit")
 
 
@@ -599,8 +607,10 @@ def add_announcement():
     now = datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO announcements (title, category, msg, created_at) VALUES (?, ?, ?, ?)",
-        (data.get("title", ""), data.get("category", ""), data.get("msg", ""), now)
+        "INSERT INTO announcements (title, category, msg, registration_url, created_at) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (data.get("title", ""), data.get("category", ""), data.get("msg", ""),
+         data.get("registration_url", "").strip(), now)
     )
     conn.commit()
     conn.close()
