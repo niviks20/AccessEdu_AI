@@ -12,6 +12,117 @@
   var reading = false;
   var voiceListening = false;
   var voiceRecognition = null;
+  var currentLang = localStorage.getItem("accessedu_lang") || "en";
+  var AUTO_VOICE_ENABLED = true;
+
+  var translations = {
+    en: {
+      languageLabel: "EN",
+      highContrast: "High contrast",
+      readPage: "Read page",
+      voiceAssist: "Voice assist",
+      logout: "Log out",
+      dashboard: "Dashboard",
+      communication: "Communication",
+      toolkit: "Campus Toolkit",
+      emergency: "Emergency SOS",
+      admin: "Admin",
+      heroBadge: "Inclusive campus access",
+      welcomeTitle: "Welcome to AccessEdu",
+      welcomeText: "A modern accessibility platform built for students, staff, and visitors to access learning support, guidance, communication tools, and campus services with confidence.",
+      statFeatures: "Core features",
+      statAccess: "Accessible",
+      statSupport: "Smart support",
+      studentGuestTitle: "Student / Guest access",
+      studentLogin: "Continue as student",
+      guestLogin: "Continue as guest",
+      adminTitle: "Staff / Admin login",
+      usernameLabel: "Username",
+      passwordLabel: "Password",
+      adminLogin: "Log in as admin"
+    },
+    hi: {
+      languageLabel: "हिं",
+      highContrast: "उच्च कंट्रास्ट",
+      readPage: "पेज पढ़ें",
+      voiceAssist: "वॉइस असिस्ट",
+      logout: "लॉग आउट",
+      dashboard: "डैशबोर्ड",
+      communication: "संचार",
+      toolkit: "कैम्पस टूलकिट",
+      emergency: "आपातकाल SOS",
+      admin: "एडमिन",
+      heroBadge: "समावेशी कैंपस एक्सेस",
+      welcomeTitle: "AccessEdu में आपका स्वागत है",
+      welcomeText: "यह एक आधुनिक एक्सेसिबिलिटी प्लेटफ़ॉर्म है, जिससे छात्र, कर्मचारी और अतिथि आसानी से सीखने, मार्गदर्शन, संवाद और कैंपस सेवाओं का उपयोग कर सकते हैं।",
+      statFeatures: "मुख्य सुविधाएँ",
+      statAccess: "उपयोग में आसान",
+      statSupport: "स्मार्ट सहायता",
+      studentGuestTitle: "छात्र / अतिथि एक्सेस",
+      studentLogin: "छात्र के रूप में जारी रखें",
+      guestLogin: "अतिथि के रूप में जारी रखें",
+      adminTitle: "स्टाफ / एडमिन लॉगिन",
+      usernameLabel: "उपयोगकर्ता नाम",
+      passwordLabel: "पासवर्ड",
+      adminLogin: "एडमिन के रूप में लॉग इन करें"
+    },
+    ta: {
+      languageLabel: "த",
+      highContrast: "உயர் மாறுபாடு",
+      readPage: "பக்கத்தை படியுங்கள்",
+      voiceAssist: "குரல் உதவி",
+      logout: "வெளியேறு",
+      dashboard: "டாஷ்போர்டு",
+      communication: "தொடர்பு",
+      toolkit: "கேம்பஸ் கருவிப்பெட்டி",
+      emergency: "அவசர SOS",
+      admin: "நிர்வாகம்",
+      heroBadge: "சமூக உள்ளடக்கிய அணுகல்",
+      welcomeTitle: "AccessEduக்கு வரவேற்கிறோம்",
+      welcomeText: "மாணவர்கள், பணியாளர்கள் மற்றும் பார்வையாளர்களுக்கு கற்றல், வழிகாட்டுதல், தொடர்பு மற்றும் வளாக சேவைகளை எளிதாக அணுகுவதற்கான நவீன அணுகல் தளம்.",
+      statFeatures: "முக்கிய அம்சங்கள்",
+      statAccess: "அணுகக்கூடியது",
+      statSupport: "ஸ்மார்ட் உதவி",
+      studentGuestTitle: "மாணவர் / விருந்தினர்",
+      studentLogin: "மாணவராக தொடரவும்",
+      guestLogin: "விருந்தினராக தொடரவும்",
+      adminTitle: "சார்பு / நிர்வாகி உள்நுழைவு",
+      usernameLabel: "பயனர்பெயர்",
+      passwordLabel: "கடவுச்சொல்",
+      adminLogin: "நிர்வாகியாக உள்நுழைக"
+    }
+  };
+
+  function getLangCode(lang) {
+    var map = { en: "en-IN", hi: "hi-IN", ta: "ta-IN" };
+    return map[lang] || "en-IN";
+  }
+
+  function applyLanguage(lang) {
+    currentLang = translations[lang] ? lang : "en";
+    var data = translations[currentLang];
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n");
+      if (data[key]) {
+        el.textContent = data[key];
+      }
+    });
+    var langBtn = document.getElementById("lc-toggle");
+    if (langBtn) langBtn.textContent = data.languageLabel;
+    try { localStorage.setItem("accessedu_lang", currentLang); } catch (e) {}
+    announce("Language set to " + currentLang.toUpperCase() + ".");
+    if (synth) {
+      speak("Language set to " + currentLang.toUpperCase() + ".", { lang: getLangCode(currentLang) });
+    }
+  }
+
+  function toggleLanguage() {
+    var order = ["en", "hi", "ta"];
+    var idx = order.indexOf(currentLang);
+    var next = order[(idx + 1) % order.length];
+    applyLanguage(next);
+  }
 
   // ---------- High contrast ----------
   function applyTheme(theme) {
@@ -81,6 +192,7 @@
     if (!text) return;
     var utter = new SpeechSynthesisUtterance(text);
     utter.rate = 0.98;
+    utter.lang = getLangCode(currentLang);
     utter.onend = function () {
       reading = false;
       if (btn) btn.setAttribute("aria-pressed", "false");
@@ -98,6 +210,7 @@
     opts = opts || {};
     var utter = new SpeechSynthesisUtterance(text);
     utter.rate = opts.rate || 1;
+    utter.lang = opts.lang || getLangCode(currentLang);
     if (opts.onend) utter.onend = opts.onend;
     synth.cancel();
     synth.speak(utter);
@@ -147,6 +260,7 @@
       "open home": "/",
       "dashboard": "/",
       "go to dashboard": "/",
+      "open dashboard": "/",
       "open academic": "/academic",
       "go to academic": "/academic",
       "open access path": "/accesspath",
@@ -159,7 +273,21 @@
       "go to emergency": "/sos",
       "emergency sos": "/sos",
       "logout": "/logout",
-      "log out": "/logout"
+      "log out": "/logout",
+      "open login": "/login",
+      "go to login": "/login",
+      "होम": "/",
+      "डैशबोर्ड": "/",
+      "अकादमिक खोलें": "/academic",
+      "संचार खोलें": "/communication",
+      "टूलकिट खोलें": "/toolkit",
+      "आपातकाल": "/sos",
+      "முகப்பு": "/",
+      "டாஷ்போர்டு": "/",
+      "கல்வி": "/academic",
+      "தொடர்பு": "/communication",
+      "கேம்பஸ்": "/toolkit",
+      "அவசரம்": "/sos"
     };
 
     if (routeMap[cmd]) {
@@ -246,7 +374,7 @@
     return voiceRecognition;
   }
 
-  function toggleVoiceAssistant() {
+  function toggleVoiceAssistant(autoStart) {
     var btn = document.getElementById("voice-assist-toggle");
     if (!voiceRecognition) {
       voiceRecognition = ensureVoiceRecognition();
@@ -258,17 +386,20 @@
     }
 
     if (voiceListening) {
-      voiceListening = false;
-      if (btn) btn.setAttribute("aria-pressed", "false");
-      voiceRecognition.stop();
-      announce("Voice assistant turned off.");
+      if (!autoStart) {
+        voiceListening = false;
+        if (btn) btn.setAttribute("aria-pressed", "false");
+        voiceRecognition.stop();
+        announce("Voice assistant turned off.");
+      }
       return;
     }
 
     voiceListening = true;
     if (btn) btn.setAttribute("aria-pressed", "true");
-    announce("Voice assistant is ready. Say a command like open academic or read page.");
-    speak("Voice assistant is ready. Say a command like open academic, read page, or emergency SOS.");
+    var welcome = "Voice assistant is ready. Say a command like open academic or read page.";
+    announce(welcome);
+    speak(welcome, { lang: getLangCode(currentLang) });
 
     try {
       voiceRecognition.start();
@@ -297,6 +428,16 @@
     var voiceBtn = document.getElementById("voice-assist-toggle");
     if (voiceBtn) voiceBtn.addEventListener("click", toggleVoiceAssistant);
 
+    var langBtn = document.getElementById("lc-toggle");
+    if (langBtn) langBtn.addEventListener("click", toggleLanguage);
+
+    try {
+      var saved = localStorage.getItem("accessedu_lang") || "en";
+      applyLanguage(saved);
+    } catch (e) {
+      applyLanguage("en");
+    }
+
     if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
       document.querySelectorAll(".needs-stt").forEach(function (el) {
         el.setAttribute("disabled", "disabled");
@@ -314,11 +455,36 @@
     }
   });
 
-  window.AccessEdu = {
+if (window.navigator && "serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/service-worker.js").catch(function () {});
+      });
+    }
+
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      window.setTimeout(function () {
+        if (!voiceListening && AUTO_VOICE_ENABLED) {
+          try {
+            var autoBtn = document.getElementById("voice-assist-toggle");
+            if (autoBtn && !autoBtn.disabled) {
+              autoBtn.setAttribute("aria-pressed", "true");
+              announce("Voice assistant ready. Say help for commands.");
+              if (synth) {
+                speak("Voice assistant ready. Say help for commands.", { lang: getLangCode(currentLang) });
+              }
+              toggleVoiceAssistant(true);
+            }
+          } catch (e) {}
+        }
+      }, 1800);
+    }
+
+    window.AccessEdu = {
     speak: speak,
     getRecognition: getRecognition,
     announce: announce,
     handleVoiceCommand: handleVoiceCommand,
-    startVoiceAssistant: toggleVoiceAssistant
+    startVoiceAssistant: toggleVoiceAssistant,
+    setLanguage: applyLanguage
   };
 })();
