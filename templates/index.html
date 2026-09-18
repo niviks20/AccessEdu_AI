@@ -1,41 +1,80 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1>Good to see you</h1>
-<p>Choose where you want to go. Every page here works with your keyboard, a screen reader, or your voice.</p>
+<section class="home-hero" aria-labelledby="home-title">
+  <div class="home-hero-copy">
+    <p class="eyebrow">ACCESSIBLE CAMPUS, ONE CLEAR PATH</p>
+    <h1 id="home-title">Your campus, made easier to use.</h1>
+    <p class="home-lede">Learning support, accessible routes, communication tools, and essential campus services in one calm, voice-ready place.</p>
+    <div class="home-actions" aria-label="Quick actions">
+      <a class="btn" href="{{ url_for('academic_home') }}">Open Academic Bot</a>
+      <a class="btn secondary" href="{{ url_for('accesspath_home') }}">Find an accessible route</a>
+    </div>
+  </div>
+  <div class="home-hero-signal" aria-label="Accessibility status">
+    <span class="signal-icon" aria-hidden="true">◉</span>
+    <strong>Ready when you are</strong>
+    <span>Keyboard, screen reader, text, and voice support are built into the experience.</span>
+  </div>
+</section>
 
-<div class="card">
-  <div class="feature-row">
-    <div class="num" aria-hidden="true">1</div>
+<section class="home-section" aria-labelledby="features-title">
+  <div class="section-heading">
     <div>
-      <a class="feature-link" href="{{ url_for('academic_home') }}">AI Academic Bot</a>
-      <p>Turns your unit PDFs into lessons, 14‑mark exam notes, and a spoken viva‑practice session, with read‑aloud on every answer.</p>
+      <p class="eyebrow">EXPLORE ACCESS EDU</p>
+      <h2 id="features-title">Choose a campus tool</h2>
     </div>
+    <p>Say the feature name, select a tile, or use the mobile navigation.</p>
   </div>
-  <div class="feature-row">
-    <div class="num" aria-hidden="true">2</div>
-    <div>
-      <a class="feature-link" href="{{ url_for('accesspath_home') }}">AccessPath‑AI</a>
-      <p>Find accessible routes across campus — ramps, lifts, accessible toilets and rest points — with step‑by‑step directions you can hear.</p>
-    </div>
-  </div>
-  <div class="feature-row">
-    <div class="num" aria-hidden="true">3</div>
-    <div>
-      <a class="feature-link" href="{{ url_for('communication_home') }}">Communication</a>
-      <p>Live speech‑to‑text captioning, text‑to‑speech for mute students, and a quick‑phrase board for fast, one‑tap communication.</p>
-    </div>
-  </div>
-  <div class="feature-row">
-    <div class="num" aria-hidden="true">4</div>
-    <div>
-      <a class="feature-link" href="{{ url_for('toolkit_home') }}">Campus Toolkit</a>
-      <p>Outpasses, exam slot booking, food ordering, wheelchair assistance requests, bus/shuttle help and campus announcements.</p>
-    </div>
-  </div>
-</div>
 
-<div class="banner danger" style="margin-top:1.5rem;">
-  <strong>In an emergency,</strong> go straight to <a href="{{ url_for('sos') }}">Emergency SOS</a> — it works in one tap or one voice command.
-</div>
+  <div class="feature-grid">
+    <a class="feature-tile feature-tile-academic" href="{{ url_for('academic_home') }}">
+      <span class="feature-icon" aria-hidden="true">🎓</span>
+      <span class="feature-kicker">LEARN</span>
+      <strong>AI Academic Bot</strong>
+      <span>Study from faculty PDFs with lessons, exam notes, and spoken viva practice.</span>
+      <span class="feature-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="feature-tile feature-tile-path" href="{{ url_for('accesspath_home') }}">
+      <span class="feature-icon" aria-hidden="true">🧭</span>
+      <span class="feature-kicker">MOVE</span>
+      <strong>AccessPath‑AI</strong>
+      <span>Find step-free routes with ramps, lifts, rest points, and directions you can hear.</span>
+      <span class="feature-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="feature-tile feature-tile-communication" href="{{ url_for('communication_home') }}">
+      <span class="feature-icon" aria-hidden="true">💬</span>
+      <span class="feature-kicker">CONNECT</span>
+      <strong>Communication</strong>
+      <span>Use live captions, text-to-speech, and quick phrases when communication needs to be fast.</span>
+      <span class="feature-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="feature-tile feature-tile-toolkit" href="{{ url_for('toolkit_home') }}">
+      <span class="feature-icon" aria-hidden="true">🏫</span>
+      <span class="feature-kicker">MANAGE</span>
+      <strong>Campus Toolkit</strong>
+      <span>Handle outpasses, food, slots, marketplace listings, assistance, and announcements.</span>
+      <span class="feature-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+
+<section class="vision-support" aria-labelledby="vision-support-title">
+  <div class="vision-support-icon" aria-hidden="true">◌</div>
+  <div>
+    <p class="eyebrow">DESIGNED FOR INDEPENDENCE</p>
+    <h2 id="vision-support-title">A stronger experience for visually impaired students</h2>
+    <p>Voice guidance can announce pages and actions, text can be enlarged, contrast can be strengthened, and every important control remains available to keyboard and screen-reader users.</p>
+  </div>
+  <a class="text-link" href="{{ url_for('communication_home') }}">Open communication tools <span aria-hidden="true">→</span></a>
+</section>
+
+<section class="sos-panel" aria-labelledby="sos-title">
+  <div>
+    <p class="eyebrow">NEED HELP NOW?</p>
+    <h2 id="sos-title">Emergency SOS</h2>
+    <p>Send an alert to campus support with one clear action.</p>
+  </div>
+  <a class="sos-action" href="{{ url_for('sos') }}"><span aria-hidden="true">🆘</span> Open SOS</a>
+</section>
 {% endblock %}

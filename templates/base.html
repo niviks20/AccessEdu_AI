@@ -78,14 +78,14 @@
   </div>
 
   <nav class="mobile-footer-nav" aria-label="Mobile feature navigation">
-    <a href="{{ url_for('home') }}" {% if active=='home' %}aria-current="page"{% endif %}>
-      <span aria-hidden="true">⌂</span><span>Home</span>
-    </a>
     <a href="{{ url_for('academic_home') }}" {% if active=='academic' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">🎓</span><span>Academic</span>
     </a>
     <a href="{{ url_for('accesspath_home') }}" {% if active=='accesspath' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">🧭</span><span>AccessPath</span>
+    </a>
+    <a class="mobile-sos-link" href="{{ url_for('sos') }}" {% if active=='sos' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🆘</span><span>SOS</span>
     </a>
     <a href="{{ url_for('communication_home') }}" {% if active=='communication' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">💬</span><span>Communication</span>
@@ -93,18 +93,6 @@
     <a href="{{ url_for('toolkit_home') }}" {% if active=='toolkit' %}aria-current="page"{% endif %}>
       <span aria-hidden="true">🏫</span><span>Toolkit</span>
     </a>
-    <a href="{{ url_for('sos') }}" {% if active=='sos' %}aria-current="page"{% endif %}>
-      <span aria-hidden="true">🆘</span><span>SOS</span>
-    </a>
-    {% if session.get('is_admin') %}
-    <a href="{{ url_for('admin_page') }}" {% if active=='admin' %}aria-current="page"{% endif %}>
-      <span aria-hidden="true">🔒</span><span>Admin</span>
-    </a>
-    {% else %}
-    <a href="{{ url_for('admin_login_form') }}" {% if active=='admin-login' %}aria-current="page"{% endif %}>
-      <span aria-hidden="true">🔒</span><span>Admin</span>
-    </a>
-    {% endif %}
   </nav>
 
   <p class="footer-note">AccessEdu · Built for Paavai Engineering College, Namakkal · Operable by keyboard, voice and screen reader</p>
