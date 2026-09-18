@@ -18,6 +18,33 @@
   </div>
 </section>
 
+<section class="voice-command-panel" aria-labelledby="voice-panel-title" data-reveal="voice-panel">
+  <div class="voice-panel-heading">
+    <div>
+      <p class="eyebrow">YOUR ACCESS ASSISTANT</p>
+      <h2 id="voice-panel-title" data-i18n="assistantTitle">Tell me what you need</h2>
+      <p data-i18n="assistantText">Speak a command or type it below. I can open learning tools, move around the page, and read content aloud.</p>
+    </div>
+    <span id="voice-status-badge" class="voice-status-badge" data-state="ready" aria-live="polite">Ready</span>
+  </div>
+  <div class="voice-command-input-wrap" data-reveal="command-input">
+    <label for="voice-command-input" data-i18n="commandLabel">Your command</label>
+    <div class="voice-command-input-row">
+      <input id="voice-command-input" type="text" autocomplete="off" data-i18n-placeholder="commandPlaceholder" placeholder="Try: open academic" aria-describedby="voice-command-help">
+      <button id="voice-command-submit" class="btn" type="button" data-i18n="sendCommand">Go</button>
+    </div>
+    <p id="voice-command-help" class="voice-command-help" data-i18n="commandHelp">Try “go to academic”, “show me communication”, “go back”, or “scroll down”.</p>
+  </div>
+  <div class="voice-control-row" data-reveal="voice-control">
+    <button id="voice-command-mic" class="voice-mic-button needs-stt" type="button" aria-pressed="false" aria-label="Start voice command">
+      <span aria-hidden="true">🎙</span><span data-i18n="speakCommand">Speak command</span>
+    </button>
+    <div class="voice-wave" id="voice-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <span id="voice-live-status" class="voice-live-status" aria-live="polite" data-i18n="readyStatus">Ready to help</span>
+  </div>
+  <p id="voice-transcript" class="voice-transcript" aria-live="polite"></p>
+</section>
+
 <section class="home-section" aria-labelledby="features-title">
   <div class="section-heading">
     <div>

@@ -24,7 +24,15 @@
       <span>AccessEdu <span class="sr-only">— Paavai Engineering College</span></span>
     </a>
     <div class="topbar-tools" role="toolbar" aria-label="Accessibility tools">
-      <button type="button" id="lc-toggle" class="tool-btn" aria-label="Change language" data-i18n="languageLabel">EN</button>
+      <label class="language-picker" for="language-select">
+        <span class="sr-only">Assistant language</span>
+        <select id="language-select" aria-label="Assistant language">
+          <option value="en">English</option>
+          <option value="ta">தமிழ்</option>
+          <option value="hi">हिन्दी</option>
+          <option value="ml">മലയാളം</option>
+        </select>
+      </label>
       <button type="button" id="hc-toggle" class="tool-btn" aria-pressed="false" aria-label="Toggle high contrast mode">
         <span aria-hidden="true">◐</span> <span data-i18n="highContrast">High contrast</span>
       </button>
@@ -99,7 +107,7 @@
 </div>
 
 <div id="a11y-announcer" class="sr-only live-region" aria-live="polite" role="status"></div>
-<div id="voice-assist-help" class="sr-only" aria-live="polite">Voice commands: open dashboard, open academic, open communication, open toolkit, open emergency, read page, increase text, decrease text, and high contrast.</div>
+<div id="voice-assist-help" class="sr-only" aria-live="polite">Say go to academic, show me communication, open toolkit, go back, scroll down, scroll up, or help.</div>
 
 <script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
 {% block extra_scripts %}{% endblock %}
