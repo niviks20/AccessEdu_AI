@@ -30,13 +30,22 @@
       </button>
       <button type="button" id="text-smaller" class="tool-btn" aria-label="Decrease text size">A−</button>
       <button type="button" id="text-bigger" class="tool-btn" aria-label="Increase text size">A+</button>
+      {% if not session.get('is_admin') and not admin_login %}
       <button type="button" id="read-toggle" class="tool-btn needs-tts" aria-pressed="false" aria-label="Read page aloud">
         <span aria-hidden="true">🔊</span> <span data-i18n="readPage">Read page</span>
       </button>
-      {% if not session.get('is_admin') %}
       <button type="button" id="voice-assist-toggle" class="tool-btn needs-stt" aria-pressed="false" aria-label="Toggle voice assistant">
         <span aria-hidden="true">🎙</span> <span data-i18n="voiceAssist">Voice assist</span>
       </button>
+      {% endif %}
+      {% if session.get('is_admin') %}
+      <a class="tool-btn admin-nav-button" href="{{ url_for('admin_page') }}" aria-label="Open admin dashboard">
+        <span aria-hidden="true">🔒</span> <span>Admin</span>
+      </a>
+      {% else %}
+      <a class="tool-btn admin-nav-button" href="{{ url_for('admin_login_form') }}" aria-label="Open administrator sign in">
+        <span aria-hidden="true">🔒</span> <span>Admin</span>
+      </a>
       {% endif %}
       {% if session.get('is_student') or session.get('is_admin') or session.get('is_guest') %}
       <a class="tool-btn" href="{{ url_for('logout_page') }}" aria-label="Log out of AccessEdu"><span data-i18n="logout">Log out</span></a>
@@ -67,6 +76,36 @@
       </div>
     </main>
   </div>
+
+  <nav class="mobile-footer-nav" aria-label="Mobile feature navigation">
+    <a href="{{ url_for('home') }}" {% if active=='home' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">⌂</span><span>Home</span>
+    </a>
+    <a href="{{ url_for('academic_home') }}" {% if active=='academic' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🎓</span><span>Academic</span>
+    </a>
+    <a href="{{ url_for('accesspath_home') }}" {% if active=='accesspath' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🧭</span><span>AccessPath</span>
+    </a>
+    <a href="{{ url_for('communication_home') }}" {% if active=='communication' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">💬</span><span>Communication</span>
+    </a>
+    <a href="{{ url_for('toolkit_home') }}" {% if active=='toolkit' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🏫</span><span>Toolkit</span>
+    </a>
+    <a href="{{ url_for('sos') }}" {% if active=='sos' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🆘</span><span>SOS</span>
+    </a>
+    {% if session.get('is_admin') %}
+    <a href="{{ url_for('admin_page') }}" {% if active=='admin' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🔒</span><span>Admin</span>
+    </a>
+    {% else %}
+    <a href="{{ url_for('admin_login_form') }}" {% if active=='admin-login' %}aria-current="page"{% endif %}>
+      <span aria-hidden="true">🔒</span><span>Admin</span>
+    </a>
+    {% endif %}
+  </nav>
 
   <p class="footer-note">AccessEdu · Built for Paavai Engineering College, Namakkal · Operable by keyboard, voice and screen reader</p>
 </div>

@@ -1,12 +1,16 @@
+import os
+import sys
+
 from pdf_processor import process_pdf
 
 
 if __name__ == "__main__":
 
-    subject = "Cloud Computing"
-    unit = 1
-
-    pdf_path = r"knowledge\cloud_computing\unit1.pdf"
+    subject = sys.argv[1] if len(sys.argv) > 1 else "Cloud Computing"
+    unit = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    pdf_path = sys.argv[3] if len(sys.argv) > 3 else os.path.join(
+        "knowledge", "cloud computing", "unit1.pdf"
+    )
 
     print()
     print("=" * 60)

@@ -103,11 +103,13 @@ def process_pdf(subject_name, unit_number, pdf_path):
     )
 
     detected_topics = detect_topics(full_text)
+    has_numbered_topics = bool(detected_topics)
 
     if not detected_topics:
-        raise ValueError(
-            "No numbered topics such as 1.1, 1.2, 1.3 were detected in the PDF."
-        )
+        detected_topics = [{
+            "code": f"{unit_number}.0",
+            "name": f"Unit {unit_number} study material"
+        }]
 
     unit_id = save_unit(
         subject_name,
@@ -120,6 +122,14 @@ def process_pdf(subject_name, unit_number, pdf_path):
         topic["code"]: topic
         for topic in detected_topics
     }
+
+    if not has_numbered_topics:
+        topic_id = get_topic_id(unit_id, detected_topics[0]["code"])
+        for page_data in all_pages:
+            chunks = split_into_chunks(page_data["text"])
+            for chunk in chunks:
+                save_chunk(topic_id, page_data["page"], chunk)
+        return detected_topics
 
     current_topic = None
 

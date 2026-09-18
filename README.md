@@ -25,10 +25,14 @@ front of real students.** The defaults are for local testing only.
 
 ## What's real vs. what's sample data
 
-- **AI Academic Bot**: fully working. `academic.db` already has one real indexed unit
-  (Cloud Computing, Unit 1, 6 topics, 88 chunks) extracted from a PDF via `index_pdf.py`.
-  To add more subjects/units, edit `index_pdf.py` with the right PDF path/subject/unit and
-  run `python index_pdf.py`, or build a small admin upload page around `pdf_processor.py`.
+- **AI Academic Bot**: fully working. Put teaching PDFs in
+  `knowledge/<subject folder>/unit<number>.pdf`, for example
+  `knowledge/cloud computing/unit1.pdf`. The app discovers and indexes new PDFs
+  automatically when the Academic Bot loads. Folder names match the subjects defined in
+  `database.py`, so `cloud computing` maps to `Cloud Computing`. PDFs with numbered
+  headings such as `1.1` become selectable topics; PDFs without numbered headings are
+  indexed as one unit-level topic. You can also index one file manually with
+  `python index_pdf.py "Cloud Computing" 1 "knowledge/cloud computing/unit1.pdf"`.
 - **AccessPath‑AI**: the pathfinding engine (`accesspath_data.py`, Dijkstra over a graph of
   named locations) is fully working and tested. **The campus map data itself — building
   names, distances, which paths have ramps vs. stairs — is a placeholder sample layout**,

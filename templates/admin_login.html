@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Admin sign in{% endblock %}
+{% block content %}
+<div class="login-shell admin-login-shell">
+  <section class="login-hero">
+    <div class="hero-badge"><span aria-hidden="true">🔒</span> Secure staff access</div>
+    <h1>Administrator sign in</h1>
+    <p>Sign in to view emergency alerts, outpasses, mobility requests, and campus announcements.</p>
+  </section>
+
+  <section class="login-panel card" aria-labelledby="admin-login-title">
+    {% if error %}
+    <div class="banner danger" role="alert">{{ error }}</div>
+    {% endif %}
+    <h2 id="admin-login-title">Admin dashboard</h2>
+    <form method="post" action="{{ url_for('admin_login_form') }}">
+      <div class="field">
+        <label for="admin-username">Username</label>
+        <input type="text" id="admin-username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn secondary big">Open admin dashboard</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

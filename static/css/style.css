@@ -113,6 +113,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .tool-btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
 .tool-btn:hover { filter: brightness(0.98); }
+.admin-nav-button { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+.admin-nav-button:hover { filter: brightness(1.08); }
 
 .body-row { display: flex; flex: 1; min-height: 0; }
 .sidenav {
@@ -223,6 +225,7 @@ textarea { min-height: 7em; resize: vertical; }
 }
 
 .footer-note { color: var(--ink-soft); font-size: .9rem; padding: 1.5rem; text-align: center; }
+.mobile-footer-nav { display: none; }
 
 @media (max-width: 900px) {
   .login-shell {
@@ -237,6 +240,19 @@ textarea { min-height: 7em; resize: vertical; }
   .sidenav hr { display: none; }
   .main { padding: 1rem; }
   .topbar { padding: .7rem .9rem; }
+  .mobile-footer-nav {
+    display: grid; grid-template-columns: repeat(7, minmax(4.25rem, 1fr)); gap: .15rem;
+    overflow-x: auto; position: sticky; bottom: 0; z-index: 90; padding: .45rem .35rem;
+    background: rgba(255,255,255,.96); border-top: 1px solid var(--border); backdrop-filter: blur(10px);
+  }
+  .mobile-footer-nav a {
+    display: flex; min-width: 4.25rem; flex-direction: column; align-items: center; gap: .15rem;
+    padding: .45rem .25rem; border-radius: 9px; color: var(--ink-soft); text-decoration: none;
+    font-size: .7rem; font-weight: 700; text-align: center;
+  }
+  .mobile-footer-nav a span:first-child { font-size: 1.05rem; line-height: 1; }
+  .mobile-footer-nav a[aria-current="page"] { background: var(--primary); color: var(--primary-ink); }
+  .footer-note { padding-bottom: .75rem; }
 }
 
 @media (max-width: 520px) {

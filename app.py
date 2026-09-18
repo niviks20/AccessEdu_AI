@@ -14,6 +14,7 @@ except ImportError:
 import database as academic_db
 from retriever import retrieve, build_context
 import accesspath_data
+from knowledge_index import sync_knowledge_folder
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "change-me-in-.env")
@@ -99,14 +100,17 @@ try:
 except Exception as exc:  # pragma: no cover - startup diagnostics only
     print("Warning: could not initialise academic.db:", exc)
 
+KNOWLEDGE_DIR = os.path.join(BASE_DIR, "knowledge")
+knowledge_sync = sync_knowledge_folder(KNOWLEDGE_DIR)
+for knowledge_error in knowledge_sync["errors"]:
+    print("Warning: could not index knowledge PDF:", knowledge_error)
+
 
 def logged_in():
     return bool(session.get("is_student") or session.get("is_admin") or session.get("is_guest"))
 
 
 def require_login():
-    if not logged_in():
-        return jsonify({"status": "error", "message": "Please log in first."}), 401
     return None
 
 
@@ -140,8 +144,13 @@ def guest_login_form():
     return redirect(url_for("home"))
 
 
-@app.route("/admin-login", methods=["POST"])
+@app.route("/admin-login", methods=["GET", "POST"])
 def admin_login_form():
+    if request.method == "GET":
+        if session.get("is_admin"):
+            return redirect(url_for("admin_page"))
+        return render_template("admin_login.html", active="admin-login", admin_login=True)
+
     username = (request.form.get("username") or "").strip()
     password = request.form.get("password") or ""
     admin_user = os.environ.get("ADMIN_USERNAME", "admin")
@@ -151,7 +160,12 @@ def admin_login_form():
         session.pop("is_student", None)
         session.pop("is_guest", None)
         return redirect(url_for("admin_page"))
-    return redirect(url_for("home", error="Invalid username or password."))
+    return render_template(
+        "admin_login.html",
+        active="admin-login",
+        admin_login=True,
+        error="Invalid username or password."
+    ), 401
 
 
 @app.route("/logout")
@@ -172,8 +186,6 @@ def logout_api():
 
 @app.route("/toolkit")
 def toolkit_home():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("toolkit.html", active="toolkit")
 
 
@@ -190,8 +202,6 @@ def admin_page():
 
 @app.route("/academic")
 def academic_home():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("academic.html", active="academic", groq_configured=GROQ_CONFIGURED)
 
 
@@ -206,12 +216,14 @@ def _topic_context(subject, unit, topic_code):
 
 @app.route("/api/academic/subjects")
 def api_academic_subjects():
+    sync_knowledge_folder(KNOWLEDGE_DIR)
     subjects = academic_db.get_subjects()
     return jsonify({"subjects": [s["name"] for s in subjects]})
 
 
 @app.route("/api/academic/units")
 def api_academic_units():
+    sync_knowledge_folder(KNOWLEDGE_DIR)
     subject = request.args.get("subject", "")
     units = academic_db.get_units(subject)
     return jsonify({"units": [u["unit_number"] for u in units]})
@@ -219,6 +231,7 @@ def api_academic_units():
 
 @app.route("/api/academic/topics")
 def api_academic_topics():
+    sync_knowledge_folder(KNOWLEDGE_DIR)
     subject = request.args.get("subject", "")
     unit = request.args.get("unit", "")
     if not unit:
@@ -403,8 +416,6 @@ def academic_chat():
 
 @app.route("/accesspath")
 def accesspath_home():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("accesspath.html", active="accesspath", locations=accesspath_data.list_locations())
 
 
@@ -429,8 +440,6 @@ def api_accesspath_route():
 
 @app.route("/communication")
 def communication_home():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("communication.html", active="communication")
 
 
@@ -440,8 +449,6 @@ def communication_home():
 
 @app.route("/outpass")
 def outpass():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("outpass.html", active="toolkit")
 
 
@@ -474,8 +481,6 @@ def get_outpasses():
 
 @app.route("/slot")
 def slot():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("slot.html", active="toolkit")
 
 
@@ -508,8 +513,6 @@ def get_slots():
 
 @app.route("/food")
 def food():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("food.html", active="toolkit")
 
 
@@ -543,8 +546,6 @@ def get_food_orders():
 
 @app.route("/marketplace")
 def marketplace():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("marketplace.html", active="toolkit")
 
 
@@ -608,8 +609,6 @@ def add_announcement():
 
 @app.route("/assist")
 def assist():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("assist.html", active="toolkit")
 
 
@@ -645,8 +644,6 @@ def assist_list():
 
 @app.route("/attendance")
 def attendance():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("attendance.html", active="toolkit")
 
 
@@ -656,8 +653,6 @@ def attendance():
 
 @app.route("/sos")
 def sos():
-    if not logged_in():
-        return redirect(url_for("login_page"))
     return render_template("sos.html", active="sos")
 
 
