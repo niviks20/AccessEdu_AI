@@ -203,7 +203,7 @@
     announce("Reading the page aloud.");
   }
 
-  function applyLanguage(lang) {
+  function applyLanguage(lang, announceVoice) {
     currentLang = translations[lang] ? lang : "en";
     var data = translations[currentLang];
     document.documentElement.lang = currentLang;
@@ -227,8 +227,8 @@
       localStorage.setItem("accessedu_lang", currentLang);
     } catch (e) {}
 
-    announce("Language set to " + currentLang.toUpperCase() + ".");
-    if (synth) {
+    if (announceVoice !== false) announce("Language set to " + currentLang.toUpperCase() + ".");
+    if (synth && announceVoice !== false) {
       speak("Language set to " + currentLang.toUpperCase() + ".", { lang: getLangCode(currentLang) });
     }
   }
@@ -319,6 +319,51 @@
     }).catch(function () {
       speak("I could not load announcements right now. Please try again.");
     });
+  }
+
+  function initAnnouncementCenter() {
+    var center = document.getElementById("announcement-center");
+    var content = document.getElementById("announcement-content");
+    var dismiss = document.getElementById("announcement-dismiss");
+    var read = document.getElementById("announcement-read");
+    var register = document.getElementById("announcement-register");
+    if (!center || !content) return;
+
+    fetch("/api/announcements").then(function (response) { return response.json(); }).then(function (payload) {
+      var items = payload.data || [];
+      var readIds = [];
+      try { readIds = JSON.parse(localStorage.getItem("accessedu_read_announcements") || "[]"); } catch (e) {}
+      var item = items.find(function (entry) { return readIds.indexOf(entry.id) === -1; }) || items[0];
+      if (!item) return;
+
+      var title = document.createElement("h2");
+      title.className = "announcement-center-title";
+      title.textContent = item.title;
+      var message = document.createElement("p");
+      message.className = "announcement-center-message";
+      message.textContent = item.msg;
+      var meta = document.createElement("p");
+      meta.className = "announcement-center-meta";
+      meta.textContent = (item.category || "General") + " · " + (item.created_at || "");
+      content.appendChild(title);
+      content.appendChild(message);
+      content.appendChild(meta);
+      if (item.registration_url) {
+        register.href = item.registration_url;
+        register.hidden = false;
+      }
+      center.hidden = false;
+
+      function markRead() {
+        if (readIds.indexOf(item.id) === -1) readIds.push(item.id);
+        try { localStorage.setItem("accessedu_read_announcements", JSON.stringify(readIds.slice(-100))); } catch (e) {}
+        fetch("/api/announcements/read", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ announcement_id: item.id }) }).catch(function () {});
+        center.hidden = true;
+      }
+
+      if (dismiss) dismiss.addEventListener("click", markRead);
+      if (read) read.addEventListener("click", markRead);
+    }).catch(function () {});
   }
 
   function openRegistrationLink() {
@@ -529,6 +574,11 @@
       if (mic) mic.setAttribute("aria-pressed", "false");
       setVoiceStatus("error", event.error === "not-allowed" ? "Microphone permission is required" : "Voice input is unavailable");
       announce(event.error === "not-allowed" ? "Please allow microphone access for voice commands." : "Voice assistant is unavailable.");
+      if (event.error !== "not-allowed" && event.error !== "service-not-allowed") {
+        window.setTimeout(function () {
+          if (!voiceListening) toggleVoiceAssistant(true, true);
+        }, 1200);
+      }
     };
 
     voiceRecognition.onend = function () {
@@ -628,7 +678,7 @@
     });
   }
 
-  function toggleVoiceAssistant(autoStart) {
+  function toggleVoiceAssistant(autoStart, suppressGreeting) {
     var btn = document.getElementById("voice-assist-toggle");
     if (!voiceRecognition) {
       voiceRecognition = ensureVoiceRecognition();
@@ -656,9 +706,11 @@
     setVoiceStatus("listening", "Listening...");
     if (btn) btn.setAttribute("aria-pressed", "true");
 
-    var welcome = "Hi, how can I help you?";
-    announce(welcome);
-    speak(welcome, { lang: getVoiceRecognitionLang(currentLang) });
+    if (!suppressGreeting) {
+      var welcome = "How can I help you?";
+      announce(welcome);
+      speak(welcome, { lang: getVoiceRecognitionLang(currentLang) });
+    }
 
     try {
       voiceRecognition.lang = getVoiceRecognitionLang(currentLang);
@@ -671,6 +723,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     initTheme();
     initStep();
+    initAnnouncementCenter();
 
     var installButton = document.getElementById("install-app-button");
     var installHelp = document.getElementById("install-help");
@@ -731,7 +784,7 @@
 
     try {
       var saved = localStorage.getItem("accessedu_lang") || "en";
-      applyLanguage(saved);
+      applyLanguage(saved, false);
     } catch (e) {
       applyLanguage("en");
     }
@@ -754,6 +807,9 @@
       if (synth && !hasGreeted) {
         speak("How can I help you?", { lang: getLangCode(currentLang) });
         try { localStorage.setItem(GREETING_KEY, "1"); } catch (e) {}
+      }
+      if ((window.SpeechRecognition || window.webkitSpeechRecognition) && !hasGreeted) {
+        window.setTimeout(function () { toggleVoiceAssistant(true, true); }, 900);
       }
     }
 

@@ -326,6 +326,18 @@ textarea { min-height: 7em; resize: vertical; }
 
 .footer-note { color: var(--ink-soft); font-size: .9rem; padding: 1.5rem; text-align: center; }
 .mobile-footer-nav { display: none; }
+.announcement-center {
+  position: fixed; top: 1rem; right: 1rem; z-index: 300; width: min(23rem, calc(100vw - 2rem));
+  padding: 1rem; border: 1px solid var(--border); border-left: 4px solid var(--accent);
+  border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 14px 36px rgba(17,35,62,.2);
+}
+.announcement-center-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .4rem; }
+.announcement-dismiss { width: 2rem; height: 2rem; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 1.3rem; cursor: pointer; }
+.announcement-center-title { margin: 0 0 .25rem; font-size: 1.05rem; }
+.announcement-center-message { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+.announcement-center-meta { margin: .45rem 0 0; color: var(--ink-soft); font-size: .8rem; }
+.announcement-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+.announcement-actions .tool-btn { font-size: .82rem; }
 @supports (padding: env(safe-area-inset-bottom)) {
   .mobile-footer-nav { padding-bottom: calc(.45rem + env(safe-area-inset-bottom)); }
   .footer-note { padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
@@ -379,6 +391,7 @@ textarea { min-height: 7em; resize: vertical; }
   .mobile-footer-nav .mobile-sos-link[aria-current="page"] { background: var(--danger); }
   .footer-note { padding-bottom: 5.5rem; }
   .shell { padding-bottom: 4.5rem; }
+  .announcement-center { top: .75rem; right: .75rem; left: .75rem; width: auto; }
 }
 
 @media (max-width: 520px) {

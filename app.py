@@ -48,6 +48,11 @@ def init_db():
         c.execute("ALTER TABLE announcements ADD COLUMN registration_url TEXT")
     except sqlite3.OperationalError:
         pass
+    for announcement_column in ("scheduled_at TEXT", "expires_at TEXT"):
+        try:
+            c.execute("ALTER TABLE announcements ADD COLUMN " + announcement_column)
+        except sqlite3.OperationalError:
+            pass
 
     c.execute("""CREATE TABLE IF NOT EXISTS outpasses (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -591,12 +596,39 @@ def announce():
     return render_template("announce.html", active="toolkit")
 
 
+def create_system_announcement(title, message, category="System", expires_hours=24):
+    now = datetime.datetime.now()
+    expires_at = (now + datetime.timedelta(hours=expires_hours)).isoformat(timespec="minutes")
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO announcements (title, category, msg, registration_url, created_at, scheduled_at, expires_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (title, category, message, "", now.strftime("%d %b %Y, %I:%M %p"),
+         now.isoformat(timespec="minutes"), expires_at)
+    )
+    conn.commit()
+    conn.close()
+
+
 @app.route("/api/announcements")
 def get_announcements():
+    now = datetime.datetime.now().isoformat(timespec="minutes")
     conn = get_db_connection()
-    rows = conn.execute("SELECT * FROM announcements ORDER BY id DESC").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM announcements "
+        "WHERE (scheduled_at IS NULL OR scheduled_at = '' OR scheduled_at <= ?) "
+        "AND (expires_at IS NULL OR expires_at = '' OR expires_at > ?) "
+        "ORDER BY id DESC",
+        (now, now)
+    ).fetchall()
     conn.close()
     return jsonify({"status": "success", "data": [dict(r) for r in rows]})
+
+
+@app.route("/api/announcements/read", methods=["POST"])
+def mark_announcement_read():
+    data = request.get_json(silent=True) or {}
+    return jsonify({"status": "success", "announcement_id": data.get("announcement_id")})
 
 
 @app.route("/api/announcements/add", methods=["POST"])
@@ -605,12 +637,14 @@ def add_announcement():
         return jsonify({"status": "error", "message": "Admin login required."}), 403
     data = request.get_json(silent=True) or {}
     now = datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
+    scheduled_at = (data.get("scheduled_at") or "").strip()
+    expires_at = (data.get("expires_at") or "").strip()
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO announcements (title, category, msg, registration_url, created_at) "
-        "VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO announcements (title, category, msg, registration_url, created_at, scheduled_at, expires_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
         (data.get("title", ""), data.get("category", ""), data.get("msg", ""),
-         data.get("registration_url", "").strip(), now)
+         data.get("registration_url", "").strip(), now, scheduled_at, expires_at)
     )
     conn.commit()
     conn.close()
@@ -683,6 +717,12 @@ def sos_alert():
     )
     conn.commit()
     conn.close()
+    create_system_announcement(
+        "Campus emergency alert",
+        "A new emergency alert has been sent to campus security.",
+        category="Alert",
+        expires_hours=2
+    )
     return jsonify({"status": "success", "alert_id": alert_id,
                      "message": "Security has been notified. Stay where you are if it is safe to do so."})
 
